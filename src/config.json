@@ -1,0 +1,22 @@
+{
+    "backend": {
+        "host": "http://localhost:8080/pleak-backend"
+    },
+    "frontend": {
+        "host": "http://localhost:8000",
+        "port": 8000,
+        "folder": "pleak-frontend"
+    },
+    "sql_editor": {
+        "folder": "pleak-sql-editor"
+    },
+    "sql_analyser": {
+        "folder": "pleak-sql-analysis"
+    },
+    "pe_bpmn_editor": {
+        "folder": "pleak-pe-bpmn-editor"
+    },
+    "sql_derivative_sensitivity_editor": {
+        "folder": "pleak-sql-derivative-sensitivity-editor"
+    }
+}

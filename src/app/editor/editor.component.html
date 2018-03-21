@@ -1,0 +1,59 @@
+<div class="row header-buttons">
+  <div class="col-xs-12">
+    <div class="row">
+      <div class="col-xs-5">
+        <h4 class="editor-title">Pleak SQL derivative sensitivity editor</h4>
+      </div>
+      <div class="col-xs-7 buttons-container">
+        <ul class="buttons" *ngIf="isAuthenticated()">
+          <li>
+            <a id="save-diagram"title="save BPMN diagram" href="#">
+              <span class="glyphicon glyphicon-floppy-disk"></span> Save diagram
+            </a>
+          </li>
+        </ul>
+        <ul class="buttons analyze" *ngIf="isAuthenticated()">
+          <li>
+            <a class="active .analyze-button" id="analyze-diagram" title="analyze BPMN diagram" href="#">
+              <span class="glyphicon glyphicon-check"></span> Analyze
+            </a>
+          </li>
+        </ul>
+        <ul class="buttons analyze" id="login-container" *ngIf="!isAuthenticated()">
+          <li>
+            <a id="log-in" data-toggle="modal" data-target="#loginModal" href class="active">
+              <span class="glyphicon glyphicon-log-in"></span> Log in
+            </a>
+          </li>
+        </ul>
+        <ul class="buttons analyze" id="login-container" *ngIf="isAuthenticated()">
+          <li>
+            <a id="log-out" data-toggle="modal" data-target="#logoutModal" href class="active">
+              <span class="glyphicon glyphicon-log-in"></span> Log out
+            </a>
+          </li>
+        </ul>
+        <div class="file-name-container">
+          <span id="fileSaveSuccess" class="help-block success-message" style="display: none;">
+            Successfully saved the diagram!
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <span class="text-16" id="fileName" *ngIf="isAuthenticated()"></span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="canvas">
+</div>
+<div id="sidebar" *ngIf="isLoaded()">
+  <div id="input-options" *ngIf="isAuthenticated()">
+  </div>
+</div>
+<div class="model-spinner" *ngIf="isAuthenticated() && !isLoaded()">
+  <div class="double-bounce1"></div>
+  <div class="double-bounce2"></div>
+</div>

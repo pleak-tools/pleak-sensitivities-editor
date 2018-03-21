@@ -1,0 +1,42 @@
+<div id="analysis-panels" style="margin-bottom:20px; display:none;" *ngIf="isAuthenticated()">
+  <div id="analysis-panel" style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
+    <button class="btn btn-default pull-right" type="button" id="analysis-settings-hide-button">X</button>
+    <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Analysis settings</h2>
+    <div class="row" style="text-align:right">
+      <div class="col-md-6">
+        <div class="form-group" id="epsilon-input-form-group">
+          <label class="text-16" for="epsilon-input">Epsilon (privacy level)</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1"/>
+      </div>
+    </div>
+    <div class="row" style="text-align: right">
+      <div class="col-md-6">
+        <div class="form-group" id="beta-input-form-group">
+          <label class="text-16" for="beta-input">Beta (smoothness level)</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <input class="form-control beta-input" type="number" id="beta-input" value="0.1" step="0.1"/>
+      </div>
+    </div>
+    <div class="row" style="text-align:right">
+      <div class="col-md-12">
+        <button id="run-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run analysis</button>
+      </div>
+    </div>
+  </div>
+  <div id="analysis-results-panel" style="background-color:#fff; border-radius:4px; display:none; padding:10px; border-top-right-radius:0px; border-top-left-radius:0px">
+    <div>
+      <h2 style="margin-top: 10px; margin-bottom:20px; color:deepskyblue;">Analysis results</h2>
+    </div>
+    <div class="analysis-spinner" style="display:none">
+      <div class="double-bounce1-2"></div>
+      <div class="double-bounce2-2"></div>
+    </div>
+    <div id="analysis-results-panel-content">
+    </div>
+  </div>
+</div>

@@ -1,0 +1,215 @@
+html, body, #canvas, #canvas > div {
+  height: 100%;
+}
+
+.error-message {
+  color: #D43535 !important;
+}
+
+.success-message {
+  color: #259825 !important;
+}
+
+/* Bootstrap fix */
+.has-error span {
+  color: #a94442;
+}
+.has-error label {
+  color: #a94442;
+}
+
+.help-block {
+  display: none;
+}
+
+/** http://tobiasahlin.com/spinkit/ **/
+#loginLoading, #logoutLoading {
+    display: none;
+}
+
+.spinner, .analysis-spinner {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  margin: 50px auto;
+}
+
+.model-spinner {
+  position:fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50px;
+  height:40px;
+  width:40px;
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #333;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce1-2, .double-bounce2-2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: lightcoral;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2, .double-bounce-2-2 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes sk-bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+  0%, 100% {
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% {
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
+
+.djs-palette {
+  margin-top: 80px;
+}
+
+/* */
+.highlight-input:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: greenyellow!important;
+}
+
+.highlight-input-selected:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: springgreen!important;
+}
+
+.highlight-input-output:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: rosybrown!important;
+}
+
+.highlight-input-output-selected:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: brown!important;
+}
+
+.highlight-output:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: lightsalmon!important;
+}
+
+.highlight-output-selected:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: lightcoral!important;
+}
+
+.highlight-group:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: lightskyblue!important;
+}
+
+.highlight-task:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: lightblue!important;
+}
+
+.highlight-data-object:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: lightblue!important;
+}
+
+.highlight-general-error:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #f44842!important;
+}
+
+.highlight-general-error:not(.djs-connection) .djs-label {
+  stroke: white!important;
+}
+
+.highlight-general-error.djs-connection > .djs-visual > :nth-child(1) {
+  stroke: red!important;
+}
+.highlight-specific-error:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #f47741!important;
+}
+
+.highlight-specific-error:not(.djs-connection) .djs-label {
+  stroke: white!important;
+}
+
+.highlight-specific-error.djs-connection > .djs-visual > :nth-child(1) {
+  stroke: red!important;
+}
+/* */
+.text-16 {
+  font-size: 16px;
+}
+
+/** Stereotype selector menu*/
+.stereotype-editor {
+  width: 200px;
+  background: white;
+  padding: 10px;
+  padding-top: 15px;
+  border-radius: 2px;
+  position: absolute;
+  z-index: 1
+}
+
+.stereotypes-table {
+  margin-bottom: 0px;
+}
+
+.stereotype-menu, .stereotype-submenu {
+  display: none;
+}
+
+.stereotype-label-color {
+  color: darkblue;
+}
+
+.link-row:hover {
+  cursor: pointer;
+}
+
+.disabled-link {
+  pointer-events: none;
+  cursor: default;
+  color: lightgray;
+}
+
+.link-selected {
+  font-weight: bold;
+  cursor: default;
+}
+
+.link-not-selected {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.CodeMirror {
+  font-size: 16px;
+  height: unset;
+  min-height: 60px;
+}
+
+/* */
+.sub-panel {
+  margin-bottom: 0px!important;
+  border-radius: 0px!important;
+}
