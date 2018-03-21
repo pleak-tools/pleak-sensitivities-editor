@@ -1,4 +1,4 @@
-# PleakSqlDerivativeSensitivityEditor
+# Pleak SQL Derivative Sensitivity Editor
 
 This project is the front-end part of the [SQL derivative sensitivity analysis tool for pleak.io](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach) that is a part of the [SQL analysis tool for pleak.io](https://github.com/pleak-tools/pleak-sql-analysis).
 
