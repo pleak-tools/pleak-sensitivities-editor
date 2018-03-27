@@ -35,6 +35,9 @@ export class AnalysisHandler {
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
+  analysisErrors: any[] = [];
+  numberOfErrorsInModel: Number = 0;
+
   init() {
     // No changes in model, so show previous analysis results
     if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val())) {
@@ -45,12 +48,13 @@ export class AnalysisHandler {
     // Changes in model, so run new analysis
     this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1};
     let counter = this.getAllModelTaskHandlers().length;
+    this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
-      if (!this.prepareTaskAnalyzerInput(taskId, counter--, this.getAllModelTaskHandlers().length)) {
-        this.showAnalysisErrorResults();
-        return;
-      }
+      this.prepareTaskAnalyzerInput(taskId, counter--, this.getAllModelTaskHandlers().length);
     }
+    this.eventBus.on('element.click', (e) => {
+      this.removeErrorHiglights();
+    });
   }
 
   // Format analyser input and send it to the analyser
@@ -73,18 +77,19 @@ export class AnalysisHandler {
       this.analysisInputTasksOrder.push({id: taskId, order: Math.abs(counter-amount)});
       this.canvas.removeMarker(taskId, 'highlight-general-error');
       if (counter === 1) {
-        this.analysisInput.queries.trim();
-        this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
-        this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
-        $('.analysis-spinner').fadeIn();
-        $('#analysis-results-panel-content').html('');
-        this.runAnalysisREST(this.analysisInput);
+        if (this.analysisErrors.length === 0) {
+          this.analysisInput.queries.trim();
+          this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
+          this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
+          $('.analysis-spinner').fadeIn();
+          $('#analysis-results-panel-content').html('');
+          this.runAnalysisREST(this.analysisInput);
+        } else {
+          this.showAnalysisErrorResults();
+        }
       }
-      return true;
     } else {
-      this.canvas.addMarker(taskId, 'highlight-general-error');
-      this.analysisResult = taskQuery.error;
-      return false;
+      this.addUniqueErrorToErrorsList(taskQuery.error, [taskId]);
     }
   }
 
@@ -103,7 +108,7 @@ export class AnalysisHandler {
   // Format analysis result string
   formatAnalysisResults(success: any) {
     if (success.status === 200) {
-      let resultsString = JSON.parse((<any>success)._body).result
+      let resultsString = success.json().result
       if (resultsString) {
         let lines = resultsString.split(String.fromCharCode(30));
         let results = []
@@ -137,19 +142,24 @@ export class AnalysisHandler {
   // Format analysis error string
   formatAnalysisErrorResults(fail: any) {
     if (fail.status === 409) {
-      let resultsString = JSON.parse((<any>fail)._body).error;
+      let resultsString = fail.json().error;
       let parts = resultsString.split("ERROR: ");
       if (parts.length > 1) {
         this.analysisResult = parts[1];
       } else {
-        this.analysisResult = "Invalid input";
+        let parts2 = resultsString.split("banach: ");
+        if (parts2.length > 1) {
+          this.analysisResult = parts2[1];
+        } else {
+          this.analysisResult = "Invalid input";
+        }
       }
     } else if (fail.status === 400) {
       this.analysisResult = "Analyzer error";
     } else {
       this.analysisResult = "Server error";
     }
-    this.showAnalysisErrorResults();
+    this.showAnalysisErrorResult();
   }
 
   // Show analysis results table
@@ -226,20 +236,72 @@ export class AnalysisHandler {
     }
   }
 
-  // Show analysis error
+  // Show analysis errors list
   showAnalysisErrorResults() {
+    $('#analysis-results-panel-content').html('');
+    this.removeErrorHiglights();
+    this.removeErrorsListClickHandlers();
+    this.numberOfErrorsInModel = 0;
+    if (this.analysisErrors.length > 0) {
+      this.numberOfErrorsInModel = this.analysisErrors.length;
+      let errors_list = '<ol style="text-align:left">';
+      let i = 0;
+      for (let error of this.analysisErrors) {
+        let errorMsg = error.error.charAt(0).toUpperCase() + error.error.slice(1);
+        errors_list += '<li class="error-list-element error-'+i+'" style="font-size:16px; color:darkred; cursor:pointer;">'+errorMsg+'</li>';
+        $('#analysis-results-panel-content').on('click', '.error-' + i, (e) => {
+          this.highlightObjectWithErrorByIds(error.object);
+          $(e.target).css("font-weight", "bold");
+        });
+        i++;
+      }
+      errors_list += '</ol>';
+      $('.analysis-spinner').hide();
+      $('#analysis-results-panel-content').html(errors_list);
+    }
+  }
+
+  // Show one error from analyzer
+  showAnalysisErrorResult() {
     let resultsHtml = '<div style="text-align:left"><font style="color:darkred"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + this.analysisResult + '</font></div>';
     $('.analysis-spinner').hide();
     $('#analysis-results-panel-content').html(resultsHtml);
   }
 
+  // Add unique error to errors list
+  addUniqueErrorToErrorsList(error: String, ids: String[]) {
+    let errors = this.analysisErrors;
+    let sameErrorMsgs = errors.filter(function( obj ) {
+      return obj.error == error && obj.object.toString() === ids.toString();
+    });
+    if (sameErrorMsgs.length === 0) {
+      errors.push({error: error, object: ids});
+    }
+  }
+
+  // Remove click handlers of error links in errors list
+  removeErrorsListClickHandlers() {
+    for (let j=0; j < this.numberOfErrorsInModel; j++) {
+      $('#analysis-results-panel-content').off('click', '.error-' + j);
+    }
+  }
+
+  // Highlight objects with stereotype errors by ids
+  highlightObjectWithErrorByIds(generalIds: String[]) {
+    this.removeErrorHiglights();
+    for (let id of generalIds) {
+      this.canvas.addMarker(id, 'highlight-general-error');
+    }
+  }
+
   // Remove error highlights
   removeErrorHiglights() {
-    $('#analysis-results-panel').hide();
+    $('.error-list-element').css("font-weight", "");
     for (let taskHandler of this.getAllModelTaskHandlers()) {
       this.canvas.removeMarker(taskHandler.task.id, 'highlight-general-error');
     }
   }
+
 
   /* Wrapper functions to access elementHandler's functions */
 

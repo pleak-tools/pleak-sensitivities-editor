@@ -100,8 +100,9 @@ html, body, #canvas, #canvas > div {
   fill: greenyellow!important;
 }
 
-.highlight-input-selected:not(.djs-connection) .djs-visual > :nth-child(1) {
+.highlight-input-selected:not(.djs-connection) .djs-visual > :nth-child(1), .highlight-input-selected:not(.djs-connection) .djs-visual > :nth-child(2) {
   fill: springgreen!important;
+  stroke: green!important;
 }
 
 .highlight-input-output:not(.djs-connection) .djs-visual > :nth-child(1) {
@@ -116,8 +117,13 @@ html, body, #canvas, #canvas > div {
   fill: lightsalmon!important;
 }
 
-.highlight-output-selected:not(.djs-connection) .djs-visual > :nth-child(1) {
+.highlight-output-selected:not(.djs-connection) .djs-visual > :nth-child(1), .highlight-output-selected:not(.djs-connection) .djs-visual > :nth-child(2) {
   fill: lightcoral!important;
+  stroke: brown!important;
+}
+
+.highlight-output-selected:not(.djs-connection) .djs-label {
+  stroke: white!important;
 }
 
 .highlight-group:not(.djs-connection) .djs-visual > :nth-child(1) {
@@ -125,19 +131,26 @@ html, body, #canvas, #canvas > div {
 }
 
 .highlight-task:not(.djs-connection) .djs-visual > :nth-child(1) {
-  fill: lightblue!important;
+  fill: lightskyblue!important;
+  stroke: blue!important;
 }
 
-.highlight-data-object:not(.djs-connection) .djs-visual > :nth-child(1) {
-  fill: lightblue!important;
+.highlight-task:not(.djs-connection) .djs-label {
+  fill: white!important;
+}
+
+.highlight-data-object:not(.djs-connection) .djs-visual > :nth-child(1), .highlight-data-object:not(.djs-connection) .djs-visual > :nth-child(2) {
+  fill: lightskyblue!important;
+  stroke: blue!important;
 }
 
 .highlight-general-error:not(.djs-connection) .djs-visual > :nth-child(1) {
   fill: #f44842!important;
+  stroke: brown!important;
 }
 
 .highlight-general-error:not(.djs-connection) .djs-label {
-  stroke: white!important;
+  fill: white!important;
 }
 
 .highlight-general-error.djs-connection > .djs-visual > :nth-child(1) {
