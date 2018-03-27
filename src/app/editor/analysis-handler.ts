@@ -77,6 +77,7 @@ export class AnalysisHandler {
         this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
         this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
         $('.analysis-spinner').fadeIn();
+        $('#analysis-results-panel-content').html('');
         this.runAnalysisREST(this.analysisInput);
       }
       return true;
@@ -119,8 +120,8 @@ export class AnalysisHandler {
           }
           let taskInfo = {id: taskHandler.task.id, name: taskHandler.task.name, children: [], order: order}
           for (let i = 1; i < parts.length; i++) {
-            if (i==1 || i%3==1) {
-              let tbl = {tableId: 0, name: parts[i], sensitivity: parts[i+1], error: parts[i+2]}
+            if (i==1 || i%5==1) {
+              let tbl = {tableId: 0, name: parts[i], qoutput: parts[i+2], anoise: parts[i+3], sensitivity: parts[i+1], error: parts[i+4]}
               taskInfo.children.push(tbl);
             }
           }
@@ -176,22 +177,38 @@ export class AnalysisHandler {
               <div align="left" class="collapse ` + collapsed + `" id="` + resultObject.id + `-panel" style="margin-bottom: 10px; margin-top: -10px">`;
           let tmp = "";
           for (let tblObject of resultObject.children) {
-            
+            let sensitivity: any = Number.parseFloat(tblObject.sensitivity).toFixed(5);
+            sensitivity = (sensitivity == 0 ? 0 : sensitivity);
+            sensitivity = ( isNaN(sensitivity) ? "&infin;" : sensitivity );
+
+            let error: any = Number.parseFloat(tblObject.error).toFixed(5);
+            error = (error == 0 ? 0 : error);
+            error = ( isNaN(error) ? "&infin;" : error  + " %" );
+
+            let addedNoise: any = Number.parseFloat(tblObject.anoise).toFixed(5);
+            addedNoise = (addedNoise == 0 ? 0 : addedNoise);
+
+            let queryOutput: any = Number.parseFloat(tblObject.qoutput).toFixed(5);
+            queryOutput = (queryOutput == 0 ? 0 : queryOutput);
+
+            let headingBg = ( tblObject.name == "all input tables together" ? "background-color: #ddd;" : "" );
             let resultSubDiv = `
                 <div class="panel panel-default sub-panel">
-                  <div class="panel-heading" style="text-align:center">
+                  <div class="panel-heading" style="text-align:center; ` + headingBg + `">
                     <b>` + tblObject.name + `</b>
                   </div>
                   <div class="panel-body">
                     <table style="width:100%">
                       <tbody>
-                        <tr><td style="width:70%"><b>Derivative sensitivity</b></td><td>` + Number.parseFloat(tblObject.sensitivity).toFixed(5) + `</td><tr>
-                        <tr><td style="width:70%"><b>Relative error (noise level / output)</b></td><td>` + Number.parseFloat(tblObject.error).toFixed(5) + ` %</td><tr>
+                        <tr><td style="width:70%"><b>Derivative sensitivity</b></td><td>` + sensitivity + `</td><tr>
+                        <tr><td style="width:70%"><b>Additive noise</b></td><td>` + addedNoise + `</td><tr>
+                        <tr><td style="width:70%"><b>Query output</b></td><td>` + queryOutput + `</td><tr>
+                        <tr><td style="width:70%"><b>Relative error <br/>(additive noise / query output)</b></td><td>` + error + `</td><tr>
                       </tbody>
                     </table>
                   </div>
                 </div>`;
-            if (tblObject.name != "all") {
+            if (tblObject.name != "all input tables together") {
               resultDiv += resultSubDiv;
             } else {
               tmp = resultSubDiv;
