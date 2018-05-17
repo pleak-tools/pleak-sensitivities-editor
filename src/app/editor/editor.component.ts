@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Http } from '@angular/http';
 import { AuthService } from "../auth/auth.service";
 import { SqlBPMNModdle } from "./bpmn-labels-extension";
-import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
+import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
 
 import { ElementsHandler } from "./elements-handler";
 
@@ -34,7 +34,7 @@ export class EditorComponent implements OnInit {
 
   private loaded: boolean = false;
 
-  private viewer: Viewer;
+  private viewer: NavigatedViewer;
 
   private modelId: Number = Number.parseInt(window.location.pathname.split('/')[2]);
 
@@ -96,7 +96,7 @@ export class EditorComponent implements OnInit {
   openDiagram(diagram: String) {
     let self = this;
     if (diagram && this.viewer == null) {
-      this.viewer = new Viewer({
+      this.viewer = new NavigatedViewer({
         container: '#canvas',
         keyboard: {
           bindTo: document 
