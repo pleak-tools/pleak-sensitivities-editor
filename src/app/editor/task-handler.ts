@@ -109,6 +109,9 @@ export class TaskHandler {
         if (result.parse_tree[0].CreateFunctionStmt) {
           let stprocBody = result.parse_tree[0].CreateFunctionStmt.options[0].DefElem.arg[0].String.str;
           let obj_query = stprocBody.trim().replace(/\s+/g, " ");
+          if (obj_query.substr(obj_query.length - 1) !== ";") {
+            obj_query += "\n;";
+          }
           let innerResult = this.elementsHandler.pg_parser.parse(obj_query);
           if (innerResult.parse_tree.length) {
             return {success: {id: this.task.id, taskName: this.task.name.trim().replace(/\s+/g, "_"), query: obj_query}};

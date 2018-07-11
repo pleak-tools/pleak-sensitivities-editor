@@ -66,14 +66,18 @@ export class AnalysisHandler {
       let query = taskQuery.success.query;
       let fullQuery = "";
       let inputIds = task.getTaskInputObjects().map(a => a.id);
+      let schemasQuery = "";
       for (let inputId of inputIds) {
         let dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
         if (dataObjectQueries) {
           this.analysisInput.children.push(dataObjectQueries);
+          let schema = dataObjectQueries.schema + "\n";
+          schemasQuery += schema;
         }
       }
-      fullQuery = taskName + " = " + query;
+      fullQuery = "INSERT INTO " + taskName + " " + query;
       this.analysisInput.queries += fullQuery + "\n\n";
+      this.analysisInput.schemas = schemasQuery;
       this.analysisInputTasksOrder.push({id: taskId, order: Math.abs(counter-amount)});
       this.canvas.removeMarker(taskId, 'highlight-general-error');
       if (counter === 1) {
@@ -145,7 +149,7 @@ export class AnalysisHandler {
       let resultsString = fail.json().error;
       let parts = resultsString.split("ERROR: ");
       if (parts.length > 1) {
-        this.analysisResult = parts[1];
+        this.analysisResult = parts[1].replace("WARNING:  there is no transaction in progress", "");
       } else {
         let parts2 = resultsString.split("banach: ");
         if (parts2.length > 1) {
@@ -172,10 +176,6 @@ export class AnalysisHandler {
         });
         if (matchingTask.length > 0) {
           let resultObject = matchingTask[0];
-          let collapsed = "collapsed";
-          if (resultObject.order == this.analysisResult.length-1) {
-            collapsed = "in";
-          }
           
           let resultDiv = `
            <div class="" id="` + resultObject.id + `-analysis-results">
@@ -184,7 +184,7 @@ export class AnalysisHandler {
                   <b><span style="font-size: 16px; color: #666">` + resultObject.name + `</span></b>
                 </div>
               </div>
-              <div align="left" class="collapse ` + collapsed + `" id="` + resultObject.id + `-panel" style="margin-bottom: 10px; margin-top: -10px">`;
+              <div align="left" class="collapse collapsed" id="` + resultObject.id + `-panel" style="margin-bottom: 10px; margin-top: -10px">`;
           let tmp = "";
           for (let tblObject of resultObject.children) {
             let sensitivity: any = Number.parseFloat(tblObject.sensitivity).toFixed(5);
@@ -201,10 +201,9 @@ export class AnalysisHandler {
             let queryOutput: any = Number.parseFloat(tblObject.qoutput).toFixed(5);
             queryOutput = (queryOutput == 0 ? 0 : queryOutput);
 
-            let headingBg = ( tblObject.name == "all input tables together" ? "background-color: #ddd;" : "" );
             let resultSubDiv = `
                 <div class="panel panel-default sub-panel">
-                  <div class="panel-heading" style="text-align:center; ` + headingBg + `">
+                  <div class="panel-heading" style="text-align:center;">
                     <b>` + tblObject.name + `</b>
                   </div>
                   <div class="panel-body">
@@ -221,13 +220,23 @@ export class AnalysisHandler {
             if (tblObject.name != "all input tables together") {
               resultDiv += resultSubDiv;
             } else {
-              tmp = resultSubDiv;
+              let resultDivTmp = `
+           <div class="" id="general-analysis-results">
+              <div class="panel panel-default" style="cursor:pointer; margin-bottom:10px!important;" data-toggle="collapse" data-target="#general-panel" aria-expanded="false" aria-controls="general-panel">
+                <div align="center" class="panel-heading" style="background-color:#ddd">
+                  <b><span style="font-size: 16px; color: #666">summary</span></b>
+                </div>
+              </div>
+              <div align="left" class="collapse in" id="general-panel" style="margin-bottom: 10px; margin-top: -10px">`;
+              tmp = "<hr/>" + resultDivTmp + resultSubDiv + `
+              </div>
+            </div>`;
             }
           }
-          resultDiv += "<hr/>"+tmp;
           resultDiv += `
               </div>
             </div>`;
+          resultDiv += tmp;
           resultsHtml += resultDiv;
         }
       }

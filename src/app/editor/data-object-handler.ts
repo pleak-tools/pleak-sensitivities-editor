@@ -35,7 +35,7 @@ export class DataObjectHandler {
 
   dataObjectOptionsPanelContainer: any;
 
-  //schemaCodeMirror: any;
+  schemaCodeMirror: any;
   NRMCodeMirror: any;
   DBJexcel: any;
 
@@ -66,17 +66,31 @@ export class DataObjectHandler {
       dataObjectName = this.dataObject.name;
     }
     this.dataObjectOptionsPanelContainer.find('.data-object-name').text(dataObjectName);
-    
+
     let savedData;
     let inputNRM = "";
     let inputDB = "";
+    let inputSchema = "";
     if (this.dataObject.sqlDataObjectInfo != null) {
       savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
+      inputSchema = savedData.inputSchema;
       inputNRM = savedData.inputNRM;
       inputDB = savedData.inputDB;
     }
 
     $('.CodeMirror').remove();
+
+    this.dataObjectOptionsPanelContainer.find('#data-object-schemaInput').val(inputSchema);
+    this.schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-schemaInput"), {
+      mode: "text/x-mysql",
+      lineNumbers: false,
+      showCursorWhenSelecting: true,
+      lineWiseCopyCut: false
+    });
+    if (inputSchema == null) {
+      inputSchema = "";
+    }
+    this.schemaCodeMirror.setValue(inputSchema);
 
     this.dataObjectOptionsPanelContainer.find('#data-object-NRMinput').val(inputNRM);
     this.NRMCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-NRMinput"), {
@@ -101,8 +115,9 @@ export class DataObjectHandler {
 
     setTimeout(function() {
       self.NRMCodeMirror.refresh();
+      self.schemaCodeMirror.refresh();
     }, 10);
-    
+
 
     this.highlightDataObject();
 
@@ -127,6 +142,7 @@ export class DataObjectHandler {
     if (inputNRM && inputDB) {
       let NRMOutput = inputNRM;
       let DBOutput = "";
+      let schemaOutput = inputSchema;
       for (let row of inputDB) {
         for (let col of row) {
           DBOutput += col + " ";
@@ -136,7 +152,7 @@ export class DataObjectHandler {
       DBOutput = DBOutput.trim();
       let name = this.dataObject.name.trim().replace(/ *\([^)]*\) */g, "").replace(/\s+/g, "_");
 
-      return {id: this.dataObject.id, name: name, nrm: NRMOutput, db: DBOutput};
+      return {id: this.dataObject.id, name: name, nrm: NRMOutput, db: DBOutput, schema: schemaOutput};
     }
   }
 
@@ -170,9 +186,10 @@ export class DataObjectHandler {
   }
 
   updateDataObjectOptions() {
+    let inputSchema = this.schemaCodeMirror.getValue();
     let inputNRM = this.NRMCodeMirror.getValue();
     let inputDB = $('#DBinputTable').jexcel('getData', false);
-    let object = {inputNRM: inputNRM, inputDB: inputDB};
+    let object = {inputNRM: inputNRM, inputDB: inputDB, inputSchema: inputSchema};
     this.dataObject.sqlDataObjectInfo = JSON.stringify(object);
   }
 
