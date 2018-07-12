@@ -67,6 +67,10 @@ export class DataObjectHandler {
     }
     this.dataObjectOptionsPanelContainer.find('.data-object-name').text(dataObjectName);
 
+    if (!this.elementsHandler.canEdit) {
+      this.dataObjectOptionsPanelContainer.find('.panel-footer').hide();
+    }
+
     let savedData;
     let inputNRM = "";
     let inputDB = "";
@@ -83,6 +87,7 @@ export class DataObjectHandler {
     this.dataObjectOptionsPanelContainer.find('#data-object-schemaInput').val(inputSchema);
     this.schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-schemaInput"), {
       mode: "text/x-mysql",
+      readOnly: !this.elementsHandler.canEdit,
       lineNumbers: false,
       showCursorWhenSelecting: true,
       lineWiseCopyCut: false
@@ -94,6 +99,7 @@ export class DataObjectHandler {
 
     this.dataObjectOptionsPanelContainer.find('#data-object-NRMinput').val(inputNRM);
     this.NRMCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-NRMinput"), {
+      readOnly: !this.elementsHandler.canEdit,
       lineNumbers: false,
       showCursorWhenSelecting: true,
       lineWiseCopyCut: false
@@ -106,6 +112,7 @@ export class DataObjectHandler {
     this.DBJexcel.jexcel({
       data: inputDB,
       minDimensions: [10,7],
+      editable: this.elementsHandler.canEdit,
       onselection: function() {
         setTimeout(function() {
           $("#jexcel_contextmenu a:last-child").hide();
@@ -117,7 +124,6 @@ export class DataObjectHandler {
       self.NRMCodeMirror.refresh();
       self.schemaCodeMirror.refresh();
     }, 10);
-
 
     this.highlightDataObject();
 

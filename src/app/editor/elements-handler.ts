@@ -11,14 +11,14 @@ let is = (element, type) => element.$instanceOf(type);
 
 export class ElementsHandler {
 
-  constructor(viewer: Viewer, diagram: String, pg_parser, parent: any, parentType: String) {
+  constructor(viewer: Viewer, diagram: String, pg_parser, parent: any, canEdit: Boolean) {
     this.viewer = viewer;
     this.eventBus = this.viewer.get('eventBus');
     this.canvas = this.viewer.get('canvas');
     this.diagram = diagram;
     this.pg_parser = pg_parser;
     this.parent = parent;
-    this.parentType = parentType;
+    this.canEdit = canEdit;
     this.init();
   }
 
@@ -28,7 +28,7 @@ export class ElementsHandler {
   diagram: String;
   pg_parser: any;
   parent: any;
-  parentType: String;
+  canEdit: Boolean;
 
   analysisHandler: AnalysisHandler;
 

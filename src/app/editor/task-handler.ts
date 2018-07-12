@@ -74,10 +74,15 @@ export class TaskHandler {
     }
     this.taskOptionsPanelContainer.find('#task-input1').val(input1);
 
+    if (!this.elementsHandler.canEdit) {
+      this.taskOptionsPanelContainer.find('.panel-footer').hide();
+    }
+
     $('.CodeMirror').remove();
     codeMirror1 = CodeMirror.fromTextArea(document.getElementById("task-input1"), {
       //mode: "text/x-sql, text/x-mysql, text/x-mariadb, text/x-cassandra, text/x-plsql, text/x-mssql, text/x-hive, text/x-pgsql, text/x-gql, text/x-gpsql, text/x-esper",
       mode: "text/x-mysql",
+      readOnly: !this.elementsHandler.canEdit,
       lineNumbers: true,
       showCursorWhenSelecting: true
     });
