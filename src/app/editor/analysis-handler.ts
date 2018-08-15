@@ -31,7 +31,7 @@ export class AnalysisHandler {
   editor: any;
   elementsHandler: any;
 
-  analysisInput: any = {children: [], queries: "", epsilon: 1, beta: 0.1};
+  analysisInput: any = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: ""};
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -46,7 +46,7 @@ export class AnalysisHandler {
     }
 
     // Changes in model, so run new analysis
-    this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1};
+    this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: ""};
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
@@ -71,13 +71,15 @@ export class AnalysisHandler {
         let dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
         if (dataObjectQueries) {
           this.analysisInput.children.push(dataObjectQueries);
-          let schema = dataObjectQueries.schema + "\n";
-          schemasQuery += schema;
+          if (dataObjectQueries.schema) {
+            let schema = dataObjectQueries.schema + "\n";
+            schemasQuery += schema;
+          }
         }
       }
       fullQuery = "INSERT INTO " + taskName + " " + query;
       this.analysisInput.queries += fullQuery + "\n\n";
-      this.analysisInput.schemas = schemasQuery;
+      this.analysisInput.schemas += schemasQuery;
       this.analysisInputTasksOrder.push({id: taskId, order: Math.abs(counter-amount)});
       this.canvas.removeMarker(taskId, 'highlight-general-error');
       if (counter === 1) {
