@@ -1,5 +1,3 @@
-import * as Rx from 'rxjs/Rx';
-import { Subject } from "rxjs/Subject";
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 
 declare let $: any;

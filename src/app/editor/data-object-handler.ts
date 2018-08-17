@@ -5,10 +5,13 @@ import { ElementsHandler } from "./elements-handler";
 declare let $: any;
 declare let jexcel: any;
 declare let CodeMirror: any;
-let is = (element, type) => element.$instanceOf(type);
 
 declare function require(name:string);
 let config = require('../../config.json');
+
+let schemaCodeMirror;
+let NRMCodeMirror;
+let DBJexcel;
 
 export class DataObjectHandler {
 
@@ -35,22 +38,54 @@ export class DataObjectHandler {
 
   dataObjectOptionsPanelContainer: any;
 
-  schemaCodeMirror: any;
-  NRMCodeMirror: any;
-  DBJexcel: any;
+  DBInputInitialValue: any = null;
 
   getDataObjectId() {
     return this.dataObject.id;
+  }
+
+  getDataObjectInputSchema() {
+    let inputSchema = "";
+    if (this.dataObject.sqlDataObjectInfo != null) {
+      let savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
+      inputSchema = savedData.inputSchema;
+    }
+    return inputSchema;
+  }
+
+  getDataObjectInputNRM() {
+    let inputNRM = "";
+    if (this.dataObject.sqlDataObjectInfo != null) {
+      let savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
+      inputNRM = savedData.inputNRM;
+    }
+    return inputNRM;
   }
 
   initDataObjectOptionsEditProcess() {
     this.loadDataObjectOptionsPanelTemplate();
   }
 
+  checkForUnsavedDataObjectChangesBeforeTerminate() {
+    if (this.getDataObjectInputSchema() != schemaCodeMirror.getValue() || this.getDataObjectInputNRM() != NRMCodeMirror.getValue() || this.DBInputInitialValue.toString() != $('#DBinputTable').jexcel('getData', false).toString()) {
+      if (confirm('You have some unsaved changes. Would you like to revert these changes?')) {
+        this.terminateDataObjectOptionsEditProcess();
+      } else {
+        this.canvas.addMarker(this.dataObject.id, 'selected');
+        return false;
+      }
+    } else {
+      this.terminateDataObjectOptionsEditProcess();
+    }
+  }
+
   terminateDataObjectOptionsEditProcess() {
     this.beingEdited = false;
 
+    this.DBInputInitialValue = null;
+
     this.removeDataObjectHighlights();
+    this.canvas.removeMarker(this.dataObject.id, 'selected');
 
     this.terminateDataObjectOptionsButtons();
     this.dataObjectOptionsPanelContainer.hide();
@@ -73,7 +108,7 @@ export class DataObjectHandler {
 
     let savedData;
     let inputNRM = "";
-    let inputDB = "";
+    let inputDB = [];
     let inputSchema = "";
     if (this.dataObject.sqlDataObjectInfo != null) {
       savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
@@ -85,7 +120,7 @@ export class DataObjectHandler {
     $('.CodeMirror').remove();
 
     this.dataObjectOptionsPanelContainer.find('#data-object-schemaInput').val(inputSchema);
-    this.schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-schemaInput"), {
+    schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-schemaInput"), {
       mode: "text/x-mysql",
       readOnly: !this.elementsHandler.canEdit,
       lineNumbers: false,
@@ -95,21 +130,21 @@ export class DataObjectHandler {
     if (inputSchema == null) {
       inputSchema = "";
     }
-    this.schemaCodeMirror.setValue(inputSchema);
+    schemaCodeMirror.setValue(inputSchema);
 
     this.dataObjectOptionsPanelContainer.find('#data-object-NRMinput').val(inputNRM);
-    this.NRMCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-NRMinput"), {
+    NRMCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-NRMinput"), {
       readOnly: !this.elementsHandler.canEdit,
       lineNumbers: false,
       showCursorWhenSelecting: true,
       lineWiseCopyCut: false
     });
-    this.NRMCodeMirror.setValue(inputNRM);
+    NRMCodeMirror.setValue(inputNRM);
 
     $('.jexcel').remove();
-    this.DBJexcel = null;
-    this.DBJexcel = this.dataObjectOptionsPanelContainer.find('#DBinputTable');
-    this.DBJexcel.jexcel({
+    DBJexcel = null;
+    DBJexcel = this.dataObjectOptionsPanelContainer.find('#DBinputTable');
+    DBJexcel.jexcel({
       data: inputDB,
       minDimensions: [10,7],
       editable: this.elementsHandler.canEdit,
@@ -120,12 +155,15 @@ export class DataObjectHandler {
       }
     });
 
+    this.DBInputInitialValue = $('#DBinputTable').jexcel('getData', false);
+
     setTimeout(function() {
-      self.NRMCodeMirror.refresh();
-      self.schemaCodeMirror.refresh();
+      NRMCodeMirror.refresh();
+      schemaCodeMirror.refresh();
     }, 10);
 
     this.highlightDataObject();
+    this.canvas.addMarker(this.dataObject.id, 'selected');
 
     this.initDataObjectOptionsButtons();
     let optionsPanel = this.dataObjectOptionsPanelContainer;
@@ -181,7 +219,7 @@ export class DataObjectHandler {
       this.removeDataObjectOptions();
     });
     this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-hide-button', (e) => {
-      this.terminateDataObjectOptionsEditProcess();
+      this.checkForUnsavedDataObjectChangesBeforeTerminate();
     });
   }
 
@@ -192,8 +230,8 @@ export class DataObjectHandler {
   }
 
   updateDataObjectOptions() {
-    let inputSchema = this.schemaCodeMirror.getValue();
-    let inputNRM = this.NRMCodeMirror.getValue();
+    let inputSchema = schemaCodeMirror.getValue();
+    let inputNRM = NRMCodeMirror.getValue();
     let inputDB = $('#DBinputTable').jexcel('getData', false);
     let object = {inputNRM: inputNRM, inputDB: inputDB, inputSchema: inputSchema};
     this.dataObject.sqlDataObjectInfo = JSON.stringify(object);

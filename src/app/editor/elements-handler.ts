@@ -1,5 +1,3 @@
-import * as Rx from 'rxjs/Rx';
-import { Subject } from "rxjs/Subject";
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 
 import { AnalysisHandler } from './analysis-handler';
@@ -47,34 +45,39 @@ export class ElementsHandler {
       // Add click event listener to init and terminate stereotype processes
       this.eventBus.on('element.click', (e) => {
 
-        let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
-          return obj.task != e.element.businessObject && obj.beingEdited;
-        });
-        if (beingEditedElementHandler.length > 0) {
-          beingEditedElementHandler[0].terminateTaskOptionsEditProcess();
-        }
+        if (is(e.element.businessObject, 'bpmn:Task') || (is(e.element.businessObject, 'bpmn:DataObjectReference') && e.element.incoming.length === 0)) {
+          this.canvas.removeMarker(e.element.id, 'selected');
+          let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
+            return obj.task != e.element.businessObject && obj.beingEdited;
+          });
+          if (beingEditedElementHandler.length > 0) {
+            beingEditedElementHandler[0].checkForUnsavedTaskChangesBeforeTerminate();
+          }
 
-        let beingEditedDataObjectHandler = this.dataObjectHandlers.filter(function( obj ) {
-          return obj.dataObject != e.element.businessObject && obj.beingEdited;
-        });
-        if (beingEditedDataObjectHandler.length > 0) {
-          beingEditedDataObjectHandler[0].terminateDataObjectOptionsEditProcess();
+          let beingEditedDataObjectHandler = this.dataObjectHandlers.filter(function( obj ) {
+            return obj.dataObject != e.element.businessObject && obj.beingEdited;
+          });
+          if (beingEditedDataObjectHandler.length > 0) {
+            beingEditedDataObjectHandler[0].checkForUnsavedDataObjectChangesBeforeTerminate();
+          }
         }
 
         let toBeEditedelementHandler = [];
-        if (is(e.element.businessObject, 'bpmn:Task')) {
-          toBeEditedelementHandler = this.taskHandlers.filter(function( obj ) {
-            return obj.task == e.element.businessObject && obj.beingEdited == false;
-          });
-          if (toBeEditedelementHandler.length > 0) {
-            toBeEditedelementHandler[0].initTaskOptionsEditProcess();
-          }
-        } else if (is(e.element.businessObject, 'bpmn:DataObjectReference')) {
-          toBeEditedelementHandler = this.dataObjectHandlers.filter(function( obj ) {
-            return obj.dataObject == e.element.businessObject && obj.beingEdited == false;
-          });
-          if (toBeEditedelementHandler.length > 0) {
-            toBeEditedelementHandler[0].initDataObjectOptionsEditProcess();
+        if (!this.isAnotherTaskOrDataObjectBeingEdited(e.element.id)) {
+          if (is(e.element.businessObject, 'bpmn:Task')) {
+            toBeEditedelementHandler = this.taskHandlers.filter(function( obj ) {
+              return obj.task == e.element.businessObject && obj.beingEdited == false;
+            });
+            if (toBeEditedelementHandler.length > 0) {
+              toBeEditedelementHandler[0].initTaskOptionsEditProcess();
+            }
+          } else if (is(e.element.businessObject, 'bpmn:DataObjectReference') && e.element.incoming.length === 0) {
+            toBeEditedelementHandler = this.dataObjectHandlers.filter(function( obj ) {
+              return obj.dataObject == e.element.businessObject && obj.beingEdited == false;
+            });
+            if (toBeEditedelementHandler.length > 0) {
+              toBeEditedelementHandler[0].initDataObjectOptionsEditProcess();
+            }
           }
         }
 
@@ -82,6 +85,20 @@ export class ElementsHandler {
     });
     this.analysisHandler = new AnalysisHandler(this.viewer, this.diagram, this);
     this.prepareParser();
+  }
+
+  // Check if another element (compared to the input id) is being currently edited
+  isAnotherTaskOrDataObjectBeingEdited(elementId: string) {
+    let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
+      return obj.beingEdited;
+    });
+    let beingEditedDataObjectHandler = this.dataObjectHandlers.filter(function( obj ) {
+      return obj.beingEdited;
+    });
+    if ((beingEditedElementHandler.length > 0 && beingEditedElementHandler[0].task.id !== elementId) || (beingEditedDataObjectHandler.length > 0 && beingEditedDataObjectHandler[0].dataObject.id !== elementId)) {
+      return true;
+    }
+    return false;
   }
 
   // Create handler instance for each task / messageFlow of model
@@ -130,6 +147,7 @@ export class ElementsHandler {
   initAnalyzeProcess() {
     this.analysisHandler.init();
   }
+
   terminateAnalyzeProcess() {
     this.analysisHandler.removeErrorHiglights();
   }
@@ -153,6 +171,7 @@ export class ElementsHandler {
     return taskHandler;
   }
 
+  // Get taskHandler instance of task by task name
   getTaskHandlerByPreparedTaskName(name: String) {
     let taskHandler = null;
     let taskHandlerWithTaskId = this.getAllModelTaskHandlers().filter(function( obj ) {

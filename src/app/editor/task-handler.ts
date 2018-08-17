@@ -4,7 +4,6 @@ import { ElementsHandler } from "./elements-handler";
 
 declare let $: any;
 declare let CodeMirror: any;
-let is = (element, type) => element.$instanceOf(type);
 
 declare function require(name:string);
 let config = require('../../config.json');
@@ -41,11 +40,32 @@ export class TaskHandler {
     return this.task.id;
   }
 
+  getTaskInputQuery() {
+    let query = "";
+    if (this.task.sqlTaskInfo != null) {
+      let savedData = JSON.parse(this.task.sqlTaskInfo);
+      query = savedData.input1;
+    }
+    return query;
+  }
+
   init() {
   }
 
   initTaskOptionsEditProcess() {
     this.loadTaskOptionsPanelTemplate();
+  }
+
+  checkForUnsavedTaskChangesBeforeTerminate() {
+    if (this.getTaskInputQuery() != codeMirror1.getValue()) {
+      if (confirm('You have some unsaved changes. Would you like to revert these changes?')) {
+        this.terminateTaskOptionsEditProcess();
+      } else {
+        return false;
+      }
+    } else {
+      this.terminateTaskOptionsEditProcess();
+    }
   }
 
   terminateTaskOptionsEditProcess() {
@@ -90,7 +110,8 @@ export class TaskHandler {
       codeMirror1.refresh();
      }, 10);
 
-     this.highlightTaskInputAndOutputObjects();
+    this.highlightTaskInputAndOutputObjects();
+    this.canvas.addMarker(this.task.id, 'selected');
 
     this.initTaskOptionsButtons();
     let optionsPanel = this.taskOptionsPanelContainer;
@@ -153,7 +174,7 @@ export class TaskHandler {
       this.removeTaskOptions();
     });
     this.taskOptionsPanelContainer.one('click', '#task-options-hide-button', (e) => {
-      this.terminateTaskOptionsEditProcess();
+      this.checkForUnsavedTaskChangesBeforeTerminate();
     });
   }
 
