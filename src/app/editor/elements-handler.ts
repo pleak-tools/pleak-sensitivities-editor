@@ -217,4 +217,25 @@ export class ElementsHandler {
     return this.dataObjectHandlers;
   }
 
+  // Check for unsaved changes on model
+  areThereUnsavedChangesOnModel() {
+    let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
+      return obj.beingEdited;
+    });
+    let beingEditedDataObjectHandler = this.dataObjectHandlers.filter(function( obj ) {
+      return obj.beingEdited;
+    });
+    if (beingEditedElementHandler.length > 0) {
+      if (beingEditedElementHandler[0].areThereUnsavedTaskChanges()) {
+        return true;
+      }
+
+    }
+    if (beingEditedDataObjectHandler.length > 0) {
+      if (beingEditedDataObjectHandler[0].areThereUnsavedDataObjectChanges()) {
+        return true;
+      }
+    }
+  }
+
 }

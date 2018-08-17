@@ -56,8 +56,16 @@ export class TaskHandler {
     this.loadTaskOptionsPanelTemplate();
   }
 
-  checkForUnsavedTaskChangesBeforeTerminate() {
+  areThereUnsavedTaskChanges() {
     if (this.getTaskInputQuery() != codeMirror1.getValue()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  checkForUnsavedTaskChangesBeforeTerminate() {
+    if (this.areThereUnsavedTaskChanges()) {
       if (confirm('You have some unsaved changes. Would you like to revert these changes?')) {
         this.terminateTaskOptionsEditProcess();
       } else {

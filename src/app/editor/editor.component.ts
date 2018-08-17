@@ -190,7 +190,7 @@ export class EditorComponent implements OnInit {
     });
 
     $(window).bind('beforeunload', (e) => {
-      if (this.file.content != this.lastContent) {
+      if (this.file.content != this.lastContent || elementsHandler.areThereUnsavedChangesOnModel()) {
         return 'Are you sure you want to close this tab? Unsaved progress will be lost.';
       }
     });
@@ -302,8 +302,10 @@ export class EditorComponent implements OnInit {
   updateModelContentVariable(xml: String) {
     if (xml) {
       this.file.content = xml;
-      this.setChangesInModelStatus(true);
-      this.modelChanged();
+      if (this.file.content != this.lastContent) {
+        this.setChangesInModelStatus(true);
+        this.modelChanged();
+      }
     }
   }
 

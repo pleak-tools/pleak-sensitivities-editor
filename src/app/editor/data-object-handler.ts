@@ -66,8 +66,16 @@ export class DataObjectHandler {
     this.loadDataObjectOptionsPanelTemplate();
   }
 
-  checkForUnsavedDataObjectChangesBeforeTerminate() {
+  areThereUnsavedDataObjectChanges() {
     if (this.getDataObjectInputSchema() != schemaCodeMirror.getValue() || this.getDataObjectInputNRM() != NRMCodeMirror.getValue() || this.DBInputInitialValue.toString() != $('#DBinputTable').jexcel('getData', false).toString()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  checkForUnsavedDataObjectChangesBeforeTerminate() {
+    if (this.areThereUnsavedDataObjectChanges()) {
       if (confirm('You have some unsaved changes. Would you like to revert these changes?')) {
         this.terminateDataObjectOptionsEditProcess();
       } else {
