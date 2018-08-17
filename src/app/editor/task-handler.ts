@@ -173,7 +173,7 @@ export class TaskHandler {
     this.taskOptionsPanelContainer.one('click', '#task-options-remove-button', (e) => {
       this.removeTaskOptions();
     });
-    this.taskOptionsPanelContainer.one('click', '#task-options-hide-button', (e) => {
+    this.taskOptionsPanelContainer.on('click', '#task-options-hide-button', (e) => {
       this.checkForUnsavedTaskChangesBeforeTerminate();
     });
   }

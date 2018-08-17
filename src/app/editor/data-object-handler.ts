@@ -218,7 +218,7 @@ export class DataObjectHandler {
     this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-remove-button', (e) => {
       this.removeDataObjectOptions();
     });
-    this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-hide-button', (e) => {
+    this.dataObjectOptionsPanelContainer.on('click', '#data-object-options-hide-button', (e) => {
       this.checkForUnsavedDataObjectChangesBeforeTerminate();
     });
   }
