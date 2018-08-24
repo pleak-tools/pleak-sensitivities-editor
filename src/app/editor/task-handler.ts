@@ -80,6 +80,7 @@ export class TaskHandler {
     this.beingEdited = false;
     this.taskOptionsPanelContainer.find('#task-input1').val('');
     this.removeTaskInputsOutputsHighlights();
+    this.canvas.removeMarker(this.task.id, 'selected');
     this.terminateTaskOptionsButtons();
     this.taskOptionsPanelContainer.hide();
   }
@@ -178,9 +179,6 @@ export class TaskHandler {
     this.taskOptionsPanelContainer.one('click', '#task-options-save-button', (e) => {
       this.saveTaskOptions();
     });
-    this.taskOptionsPanelContainer.one('click', '#task-options-remove-button', (e) => {
-      this.removeTaskOptions();
-    });
     this.taskOptionsPanelContainer.on('click', '#task-options-hide-button', (e) => {
       this.checkForUnsavedTaskChangesBeforeTerminate();
     });
@@ -188,7 +186,6 @@ export class TaskHandler {
 
   terminateTaskOptionsButtons() {
     this.taskOptionsPanelContainer.off('click', '#task-options-save-button');
-    this.taskOptionsPanelContainer.off('click', '#task-options-remove-button');
     this.taskOptionsPanelContainer.off('click', '#task-options-hide-button');
   }
 

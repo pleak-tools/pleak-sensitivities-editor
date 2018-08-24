@@ -89,12 +89,9 @@ export class DataObjectHandler {
 
   terminateDataObjectOptionsEditProcess() {
     this.beingEdited = false;
-
     this.DBInputInitialValue = null;
-
     this.removeDataObjectHighlights();
     this.canvas.removeMarker(this.dataObject.id, 'selected');
-
     this.terminateDataObjectOptionsButtons();
     this.dataObjectOptionsPanelContainer.hide();
   }
@@ -223,9 +220,6 @@ export class DataObjectHandler {
     this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-save-button', (e) => {
       this.saveDataObjectOptions();
     });
-    this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-remove-button', (e) => {
-      this.removeDataObjectOptions();
-    });
     this.dataObjectOptionsPanelContainer.on('click', '#data-object-options-hide-button', (e) => {
       this.checkForUnsavedDataObjectChangesBeforeTerminate();
     });
@@ -233,7 +227,6 @@ export class DataObjectHandler {
 
   terminateDataObjectOptionsButtons() {
     this.dataObjectOptionsPanelContainer.off('click', '#data-object-options-save-button');
-    this.dataObjectOptionsPanelContainer.off('click', '#data-object-options-remove-button');
     this.dataObjectOptionsPanelContainer.off('click', '#data-object-options-hide-button');
   }
 
