@@ -116,13 +116,15 @@ export class ElementsHandler {
         }
       } else {
         for (let participant of element.participants) {
-          if (participant.processRef.flowElements) {
+          if (participant.processRef && participant.processRef.flowElements) {
             for (let node of participant.processRef.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
               this.taskHandlers.push(new TaskHandler(this, node));
             }
             for (let sprocess of participant.processRef.flowElements.filter((e:any) => is(e, "bpmn:SubProcess"))) {
-              for (let node of sprocess.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
-                this.taskHandlers.push(new TaskHandler(this, node));
+              if (sprocess.flowElements) {
+                for (let node of sprocess.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
+                  this.taskHandlers.push(new TaskHandler(this, node));
+                }
               }
             }
             for (let node of participant.processRef.flowElements.filter((e:any) => is(e, "bpmn:DataObjectReference"))) {
