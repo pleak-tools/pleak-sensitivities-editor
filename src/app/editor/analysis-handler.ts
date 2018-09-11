@@ -94,6 +94,9 @@ export class AnalysisHandler {
       }
     } else {
       this.addUniqueErrorToErrorsList(taskQuery.error, [taskId]);
+      if (counter === 1) {
+        this.showAnalysisErrorResults();
+      }
     }
   }
 
