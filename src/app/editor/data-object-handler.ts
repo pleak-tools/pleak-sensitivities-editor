@@ -234,7 +234,19 @@ export class DataObjectHandler {
     let inputSchema = schemaCodeMirror.getValue();
     let inputNRM = NRMCodeMirror.getValue();
     let inputDB = $('#DBinputTable').jexcel('getData', false);
-    let object = {inputNRM: inputNRM, inputDB: inputDB, inputSchema: inputSchema};
+    let cleanedInputDB = [];
+    for (let row of inputDB) {
+      let cleanedRow = [];
+      for (let cell of row) {
+        if (cell.length > 0) {
+          cleanedRow.push(cell.trim());
+        }
+      }
+      if (cleanedRow.length > 0) {
+        cleanedInputDB.push(cleanedRow);
+      }
+    }
+    let object = {inputNRM: inputNRM, inputDB: cleanedInputDB, inputSchema: inputSchema};
     this.dataObject.sqlDataObjectInfo = JSON.stringify(object);
   }
 

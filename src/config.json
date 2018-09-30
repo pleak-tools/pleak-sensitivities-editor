@@ -19,7 +19,10 @@
     "sql_derivative_sensitivity_editor": {
         "folder": "pleak-sql-derivative-sensitivity-editor"
     },
-    "policy_editor": {
-        "folder": "pleak-policy-editor"
+    "guessing_advantage_editor": {
+        "folder": "pleak-guessing-advantage-editor"
+    },
+    "combined_sensitivity_editor": {
+        "folder": "pleak-combined-sensitivity-editor"
     }
 }

@@ -68,10 +68,15 @@ export class AnalysisHandler {
       for (let inputId of inputIds) {
         let dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
         if (dataObjectQueries) {
-          this.analysisInput.children.push(dataObjectQueries);
-          if (dataObjectQueries.schema) {
-            let schema = dataObjectQueries.schema + "\n";
-            schemasQuery += schema;
+          let alreadyAddedDataObject = this.analysisInput.children.filter(function( obj ) {
+            return obj.id == inputId;
+          });
+          if (alreadyAddedDataObject.length === 0) {
+            this.analysisInput.children.push(dataObjectQueries);
+            if (dataObjectQueries.schema) {
+              let schema = dataObjectQueries.schema + "\n";
+              schemasQuery += schema;
+            }
           }
         }
       }

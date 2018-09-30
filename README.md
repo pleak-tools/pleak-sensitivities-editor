@@ -7,20 +7,7 @@ This project is the front-end part of the [SQL derivative sensitivity analysis t
 You need to locate [pleak-backend](https://github.com/pleak-tools/pleak-backend), [pleak-frontend](https://github.com/pleak-tools/pleak-frontend) and [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) directories all in the same directory and specify their names in the config.json file.
 Read more from sub-repositories how to build each module.
 
-To use all functionalities of the SQL derivative sensitivity editor, clone the [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) tool - SQL derivative sensitivity analyser is located in the banach subdirectory. To use it, set up:
-
-1) [Cabal](https://www.haskell.org/cabal/)
-
-To make the analyser available for the pleak-sql-derivative-sensitivity-editor, execute:
-
-    `cabal sandbox init`
-    `cabal install --only-dependencies`
-    `cabal configure`
-    `cabal build`
-
-The executable is created into dist/build/banach directory.
-
-You can find more information from the [SQL derivative sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach).
+To use all functionalities of the SQL derivative sensitivity editor, clone the [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) tool and to make the analyzer available for the editor, follow the instructions in the [SQL derivative sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach).
 
 ## Build
 
