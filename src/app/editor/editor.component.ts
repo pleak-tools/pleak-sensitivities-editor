@@ -173,7 +173,7 @@ export class EditorComponent implements OnInit {
     $('.buttons-container').on('click', '#analyze-diagram', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.loadAnalysisPanelTemplate(elementsHandler);
+      elementsHandler.analysisHandler.loadAnalysisPanelTemplate();
     });
 
     $(window).on('keydown', (e) => {
@@ -207,41 +207,6 @@ export class EditorComponent implements OnInit {
           $('.stereotype-label-color').css('color','darkblue');
         }
       }
-    });
-  }
-
-  loadAnalysisPanelTemplate(elementsHandler: ElementsHandler) {
-    if ($('#sidebar').has('#analysis-panel').length) {
-      this.initAnalysisPanels(elementsHandler);
-    } else {
-      $('#sidebar').prepend($('<div>').load(config.frontend.host + '/' + config.sql_derivative_sensitivity_editor.folder + '/src/app/editor/templates/analysis-panels.html', () => {
-        this.initAnalysisPanels(elementsHandler);
-      }));
-    }
-  }
-
-  initAnalysisPanels(elementsHandler: ElementsHandler) {
-    $('#analysis-panel').off('click', '#run-analysis');
-    let analysisPanels = $('#analysis-panels');
-    analysisPanels.detach();
-    $('#sidebar').prepend(analysisPanels);
-    $('#sidebar').scrollTop(0);
-    $('#analysis-panels').show();
-    $('#analysis-panel').on('click', '#run-analysis', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      let analysisPanels = $('#analysis-panels');
-      analysisPanels.detach();
-      $('#sidebar').prepend(analysisPanels);
-      $('#sidebar').scrollTop(0);
-      elementsHandler.initAnalyzeProcess();
-      $('#analysis-results-panel').show();
-    });
-    $('#analysis-panel').on('click', '#analysis-settings-hide-button', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      elementsHandler.terminateAnalyzeProcess();
-      $('#analysis-panels').hide();
     });
   }
 

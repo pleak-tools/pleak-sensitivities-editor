@@ -3,6 +3,7 @@ import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AnalysisHandler } from './analysis-handler';
 import { TaskHandler } from "./task-handler";
 import { DataObjectHandler } from "./data-object-handler";
+import { AttackerSettingsHandler } from './attacker-settings-handler';
 
 declare let $: any;
 let is = (element, type) => element.$instanceOf(type);
@@ -32,6 +33,8 @@ export class ElementsHandler {
 
   taskHandlers: TaskHandler[] = [];
   dataObjectHandlers: DataObjectHandler[] = [];
+
+  attackerSettingsHandler: AttackerSettingsHandler;
 
   init() {
     // Import model from xml file
@@ -84,6 +87,7 @@ export class ElementsHandler {
       });
     });
     this.analysisHandler = new AnalysisHandler(this.viewer, this.diagram, this);
+    this.attackerSettingsHandler = new AttackerSettingsHandler(this.viewer, this.diagram, this);
     this.prepareParser();
   }
 
@@ -221,6 +225,9 @@ export class ElementsHandler {
 
   // Check for unsaved changes on model
   areThereUnsavedChangesOnModel() {
+    if (this.attackerSettingsHandler.areThereUnsavedChanges()) {
+      return true;
+    }
     let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
       return obj.beingEdited;
     });

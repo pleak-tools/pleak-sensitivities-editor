@@ -29,7 +29,7 @@ export class AnalysisHandler {
   editor: any;
   elementsHandler: any;
 
-  analysisInput: any = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: ""};
+  analysisInput: any = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: ""};
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -38,13 +38,13 @@ export class AnalysisHandler {
 
   init() {
     // No changes in model, so show previous analysis results
-    if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val())) {
+    if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val())  && this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings()) {
       this.showAnalysisResults();
       return;
     }
 
     // Changes in model, so run new analysis
-    this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: ""};
+    this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: ""};
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
@@ -52,6 +52,46 @@ export class AnalysisHandler {
     }
     this.eventBus.on('element.click', (e) => {
       this.removeErrorHiglights();
+    });
+  }
+
+  loadAnalysisPanelTemplate() {
+    if ($('#sidebar').has('#analysis-panel').length) {
+      this.initAnalysisPanels();
+    } else {
+      $('#sidebar').prepend($('<div>').load(config.frontend.host + '/' + config.combined_sensitivity_editor.folder + '/src/app/editor/templates/analysis-panels.html', () => {
+        this.initAnalysisPanels();
+      }));
+    }
+  }
+
+  initAnalysisPanels() {
+    $('#analysis-panel').off('click', '#run-analysis');
+    let analysisPanels = $('#analysis-panels');
+    analysisPanels.detach();
+    $('#sidebar').prepend(analysisPanels);
+    $('#sidebar').scrollTop(0);
+    $('#analysis-panels').show();
+    $('#analysis-panel').on('click', '#run-analysis', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let analysisPanels = $('#analysis-panels');
+      analysisPanels.detach();
+      $('#sidebar').prepend(analysisPanels);
+      $('#sidebar').scrollTop(0);
+      this.init();
+      $('#analysis-results-panel').show();
+    });
+    $('#analysis-panel').on('click', '#analysis-settings-hide-button', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.removeErrorHiglights();
+      $('#analysis-panels').hide();
+    });
+    $('#analysis-panel').on('click', '#attacker-settings-button', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.elementsHandler.attackerSettingsHandler.initAttackerSettingsEditProcess();
     });
   }
 
@@ -90,6 +130,7 @@ export class AnalysisHandler {
           this.analysisInput.queries.trim();
           this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
           this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
+          this.analysisInput.attackerSettings = this.elementsHandler.attackerSettingsHandler.getAttackerSettings();
           $('.analysis-spinner').fadeIn();
           $('#analysis-results-panel-content').html('');
           this.runAnalysisREST(this.analysisInput);
