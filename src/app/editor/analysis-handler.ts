@@ -59,7 +59,7 @@ export class AnalysisHandler {
     if ($('#sidebar').has('#analysis-panel').length) {
       this.initAnalysisPanels();
     } else {
-      $('#sidebar').prepend($('<div>').load(config.frontend.host + '/' + config.combined_sensitivity_editor.folder + '/src/app/editor/templates/analysis-panels.html', () => {
+      $('#sidebar').prepend($('<div>').load(config.frontend.host + '/' + config.sql_derivative_sensitivity_editor.folder + '/src/app/editor/templates/analysis-panels.html', () => {
         this.initAnalysisPanels();
       }));
     }
