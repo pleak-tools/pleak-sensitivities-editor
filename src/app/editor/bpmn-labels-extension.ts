@@ -11,7 +11,8 @@ export const SqlBPMNModdle = {
       name: "SQLTask",
       extends: [
         "bpmn:Task",
-        "bpmn:StartEvent"
+        "bpmn:StartEvent",
+        "bpmn:IntermediateCatchEvent"
       ],
       properties: [
         {
@@ -21,6 +22,19 @@ export const SqlBPMNModdle = {
         },
         {
           "name": "sensitivityMatrix",
+          "isAttr": false,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      name: "Policies",
+      extends: [
+        "bpmn:Participant"
+      ],
+      properties: [
+        {
+          "name": "policyScript",
           "isAttr": false,
           "type": "String"
         }
@@ -216,6 +230,21 @@ export const SqlBPMNModdle = {
       properties: [
         {
           "name": "sqlScript",
+          "isAttr": false,
+          "type": "String"
+        },
+        {
+          "name": "tableData",
+          "isAttr": false,
+          "type": "String"
+        },
+        {
+          "name": "attackerSettings",
+          "isAttr": false,
+          "type": "String"
+        },
+        {
+          "name": "policyScript",
           "isAttr": false,
           "type": "String"
         }
