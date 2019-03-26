@@ -244,11 +244,8 @@ export class AnalysisHandler {
             error = (error == 0 ? 0 : error);
             error = ( isNaN(error) ? "&infin;" : error  + " %" );
 
-            let addedNoise: any = Number.parseFloat(tblObject.anoise).toFixed(5);
-            addedNoise = (addedNoise == 0 ? 0 : addedNoise);
-
-            let queryOutput: any = Number.parseFloat(tblObject.qoutput).toFixed(5);
-            queryOutput = (queryOutput == 0 ? 0 : queryOutput);
+            let addedNoise: any = tblObject.anoise;
+            let queryOutput: any = tblObject.qoutput;
 
             let resultSubDiv = `
                 <div class="panel panel-default sub-panel">
