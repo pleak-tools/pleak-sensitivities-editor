@@ -1,7 +1,7 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 
 declare let $: any;
-declare function require(name:string);
+declare function require(name: string);
 let is = (element, type) => element.$instanceOf(type);
 
 let config = require('../../config.json');
@@ -29,7 +29,7 @@ export class AnalysisHandler {
   editor: any;
   elementsHandler: any;
 
-  analysisInput: any = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: ""};
+  analysisInput: any = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -38,13 +38,13 @@ export class AnalysisHandler {
 
   init() {
     // No changes in model, so show previous analysis results
-    if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val())  && this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings()) {
+    if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) && this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings()) {
       this.showAnalysisResults();
       return;
     }
 
     // Changes in model, so run new analysis
-    this.analysisInput = {children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: ""};
+    this.analysisInput = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
@@ -108,8 +108,16 @@ export class AnalysisHandler {
   prepareTaskAnalyzerInput(taskId: string, counter: number, amount: number) {
     let task = this.getTaskHandlerByTaskId(taskId);
     let taskQuery = task.getPreparedQuery();
+    let taskSchema = task.getPreparedSchema();
     if (taskQuery && taskQuery.success) {
-      let taskName = taskQuery.success.taskName;
+      let taskName = null;
+      let taskSchemaCmd = "";
+      if (taskSchema && taskSchema.success) {
+        taskName = taskSchema.success.tableName;
+        taskSchemaCmd = taskSchema.success.schema;
+      } else {
+        taskName = taskQuery.success.taskName;
+      }
       let query = taskQuery.success.query;
       let fullQuery = "";
       let inputIds = task.getTaskInputObjects().map(a => a.id);
@@ -117,7 +125,7 @@ export class AnalysisHandler {
       for (let inputId of inputIds) {
         let dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
         if (dataObjectQueries) {
-          let alreadyAddedDataObject = this.analysisInput.children.filter(function( obj ) {
+          let alreadyAddedDataObject = this.analysisInput.children.filter(function (obj) {
             return obj.id == inputId;
           });
           if (alreadyAddedDataObject.length === 0) {
@@ -132,7 +140,8 @@ export class AnalysisHandler {
       fullQuery = "INSERT INTO " + taskName + " " + query;
       this.analysisInput.queries += fullQuery + "\n\n";
       this.analysisInput.schemas += schemasQuery;
-      this.analysisInputTasksOrder.push({id: taskId, order: Math.abs(counter-amount)});
+      this.analysisInput.schemas += taskSchemaCmd;
+      this.analysisInputTasksOrder.push({ id: taskId, order: Math.abs(counter - amount) });
       this.canvas.removeMarker(taskId, 'highlight-general-error');
       if (counter === 1) {
         if (this.analysisErrors.length === 0) {
@@ -178,17 +187,26 @@ export class AnalysisHandler {
           let parts = line.split(String.fromCharCode(31));
           let taskName = parts[0];
           let taskHandler = this.getTaskHandlerByPreparedTaskName(taskName);
+          if (!taskHandler) {
+            let taskHandlers = this.getAllModelTaskHandlers();
+            for (let sTaskHandler of taskHandlers) {
+              let taskSchema = sTaskHandler.getPreparedSchema();
+              if (taskSchema.success.tableName == taskName) {
+                taskHandler = sTaskHandler;
+              }
+            }
+          }
           let order = 0;
-          let taskWithTaskId = this.analysisInputTasksOrder.filter(function( obj ) {
+          let taskWithTaskId = this.analysisInputTasksOrder.filter(function (obj) {
             return obj.id == taskHandler.task.id;
           });
           if (taskWithTaskId.length > 0) {
             order = taskWithTaskId[0].order;
           }
-          let taskInfo = {id: taskHandler.task.id, name: taskHandler.task.name, children: [], order: order}
+          let taskInfo = { id: taskHandler.task.id, name: taskHandler.task.name, children: [], order: order }
           for (let i = 1; i < parts.length; i++) {
-            if (i==1 || i%5==1) {
-              let tbl = {tableId: 0, name: parts[i], qoutput: parts[i+2], anoise: parts[i+3], sensitivity: parts[i+1], error: parts[i+4]}
+            if (i == 1 || i % 5 == 1) {
+              let tbl = { tableId: 0, name: parts[i], qoutput: parts[i + 2], anoise: parts[i + 3], sensitivity: parts[i + 1], error: parts[i + 4] }
               taskInfo.children.push(tbl);
             }
           }
@@ -229,17 +247,21 @@ export class AnalysisHandler {
     if (this.analysisResult) {
       let resultsHtml = '';
       for (let i = 0; i < this.analysisResult.length; i++) {
-        let matchingTask = this.analysisResult.filter(function( obj ) {
+        let matchingTask = this.analysisResult.filter(function (obj) {
           return obj.order == i;
         });
         if (matchingTask.length > 0) {
           let resultObject = matchingTask[0];
-          
+          let resultObjectName = resultObject.name;
+          if (this.getTaskHandlerByTaskId(resultObject.id).getPreparedSchema().success) {
+            resultObjectName = this.getTaskHandlerByTaskId(resultObject.id).getPreparedSchema().success.tableName;
+          }
+
           let resultDiv = `
            <div class="" id="` + resultObject.id + `-analysis-results">
               <div class="panel panel-default" style="cursor:pointer; margin-bottom:10px!important" data-toggle="collapse" data-target="#` + resultObject.id + `-panel" aria-expanded="false" aria-controls="` + resultObject.id + `-panel">
                 <div align="center" class="panel-heading" style="background-color:#eae8e8">
-                  <b><span style="font-size: 16px; color: #666">` + resultObject.name + `</span></b>
+                  <b><span style="font-size: 16px; color: #666">` + resultObjectName + `</span></b>
                 </div>
               </div>
               <div align="left" class="collapse collapsed" id="` + resultObject.id + `-panel" style="margin-bottom: 10px; margin-top: -10px">`;
@@ -247,11 +269,11 @@ export class AnalysisHandler {
           for (let tblObject of resultObject.children) {
             let sensitivity: any = Number.parseFloat(tblObject.sensitivity).toFixed(5);
             sensitivity = (sensitivity == 0 ? 0 : sensitivity);
-            sensitivity = ( isNaN(sensitivity) ? "&infin;" : sensitivity );
+            sensitivity = (isNaN(sensitivity) ? "&infin;" : sensitivity);
 
             let error: any = Number.parseFloat(tblObject.error).toFixed(5);
             error = (error == 0 ? 0 : error);
-            error = ( isNaN(error) ? "&infin;" : error  + " %" );
+            error = (isNaN(error) ? "&infin;" : error + " %");
 
             let addedNoise: any = tblObject.anoise;
             let queryOutput: any = tblObject.qoutput;
@@ -312,7 +334,7 @@ export class AnalysisHandler {
       let i = 0;
       for (let error of this.analysisErrors) {
         let errorMsg = error.error.charAt(0).toUpperCase() + error.error.slice(1);
-        errors_list += '<li class="error-list-element error-'+i+'" style="font-size:16px; color:darkred; cursor:pointer;">'+errorMsg+'</li>';
+        errors_list += '<li class="error-list-element error-' + i + '" style="font-size:16px; color:darkred; cursor:pointer;">' + errorMsg + '</li>';
         $('#analysis-results-panel-content').on('click', '.error-' + i, (e) => {
           this.highlightObjectWithErrorByIds(error.object);
           $(e.target).css("font-weight", "bold");
@@ -335,17 +357,17 @@ export class AnalysisHandler {
   // Add unique error to errors list
   addUniqueErrorToErrorsList(error: String, ids: String[]) {
     let errors = this.analysisErrors;
-    let sameErrorMsgs = errors.filter(function( obj ) {
+    let sameErrorMsgs = errors.filter(function (obj) {
       return obj.error == error && obj.object.toString() === ids.toString();
     });
     if (sameErrorMsgs.length === 0) {
-      errors.push({error: error, object: ids});
+      errors.push({ error: error, object: ids });
     }
   }
 
   // Remove click handlers of error links in errors list
   removeErrorsListClickHandlers() {
-    for (let j=0; j < this.numberOfErrorsInModel; j++) {
+    for (let j = 0; j < this.numberOfErrorsInModel; j++) {
       $('#analysis-results-panel-content').off('click', '.error-' + j);
     }
   }
