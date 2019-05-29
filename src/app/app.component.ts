@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from "../app/auth/auth.service";
+import { AuthService } from '../app/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,18 +12,18 @@ export class AppComponent implements OnInit{
       this.authenticated = status;
     });
   }
-  
+
   authenticated: Boolean;
 
   isAuthenticated() {
     return this.authenticated;
   }
 
-  setUserEmail(value: String) {
+  setUserEmail(value: string) {
     this.authService.setLoginCredentialsEmail(value);
   }
 
-  setUserPassword(value: String) {
+  setUserPassword(value: string) {
     this.authService.setLoginCredentialsPassword(value);
   }
 
