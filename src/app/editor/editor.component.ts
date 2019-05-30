@@ -231,7 +231,7 @@ export class EditorComponent implements OnInit {
             console.log(err);
           } else {
             self.file.content = xml;
-            this.http.put(config.backend.host + '/rest/directories/files/' + self.fileId, self.file, AuthService.loadRequestOptions()).subscribe(
+            this.http.put(config.backend.host + '/rest/directories/files/' + self.fileId, self.file, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
                 (response: HttpResponse<any>) => {
                 if (response.status === 200 || response.status === 201) {
                   const data = response.body;
