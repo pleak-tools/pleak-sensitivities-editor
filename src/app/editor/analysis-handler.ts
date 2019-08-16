@@ -1,6 +1,7 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AuthService } from '../auth/auth.service';
 import {EditorComponent} from './editor.component';
+import {HttpResponse} from '@angular/common/http';
 
 declare let $: any;
 declare function require(name: string);
@@ -179,7 +180,7 @@ export class AnalysisHandler {
   }
 
   // Format analysis result string
-  formatAnalysisResults(success: any) {
+  formatAnalysisResults(success: HttpResponse<any>) {
     if (success.status === 200) {
       let resultsString = success.body.result;
       if (resultsString) {
@@ -222,7 +223,7 @@ export class AnalysisHandler {
   }
 
   // Format analysis error string
-  formatAnalysisErrorResults(fail: any) {
+  formatAnalysisErrorResults(fail: HttpResponse<any>) {
     if (fail.status === 409) {
       let resultsString = fail.body.error;
       let parts = resultsString.split("ERROR: ");
