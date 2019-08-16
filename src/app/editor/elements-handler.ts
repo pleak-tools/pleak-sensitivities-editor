@@ -142,11 +142,10 @@ export class ElementsHandler {
   }
 
   prepareParser() {
-    let self = this;
     return new Promise(() => {
       let result = this.pg_parser.parse("");
       if (!result.parse_tree.length) {
-        self.parent.loaded = true;
+        this.parent.loaded = true;
       }
     });
   }
@@ -160,7 +159,7 @@ export class ElementsHandler {
   }
 
   updateModelContentVariable(xml: String) {
-    this.parent.newChanges = true;
+    // this.parent.newChanges = true;
     this.parent.updateModelContentVariable(xml);
     $('#analysis-results-panel-content').html('');
     $('#analysis-results-panel').hide();

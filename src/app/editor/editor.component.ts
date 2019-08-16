@@ -40,7 +40,7 @@ export class EditorComponent implements OnInit {
 
   @Input() authenticated: Boolean;
 
-  private loaded = false;
+  public loaded = false;
 
   private viewer: NavigatedViewer;
 
