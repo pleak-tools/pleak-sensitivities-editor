@@ -1,5 +1,6 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AuthService } from '../auth/auth.service';
+import {EditorComponent} from './editor.component';
 
 declare let $: any;
 declare function require(name: string);
@@ -27,7 +28,7 @@ export class AnalysisHandler {
   overlays: any;
   diagram: String;
 
-  editor: any;
+  editor: EditorComponent;
   elementsHandler: any;
 
   analysisInput: any = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
@@ -167,7 +168,7 @@ export class AnalysisHandler {
 
   // Call to the analyser
   runAnalysisREST(postData: any) {
-    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions()).subscribe(
+    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
       success => {
         this.formatAnalysisResults(success);
       },
@@ -180,7 +181,7 @@ export class AnalysisHandler {
   // Format analysis result string
   formatAnalysisResults(success: any) {
     if (success.status === 200) {
-      let resultsString = success.json().result
+      let resultsString = success.body.result;
       if (resultsString) {
         let lines = resultsString.split(String.fromCharCode(30));
         let results = []
@@ -223,7 +224,7 @@ export class AnalysisHandler {
   // Format analysis error string
   formatAnalysisErrorResults(fail: any) {
     if (fail.status === 409) {
-      let resultsString = fail.json().error;
+      let resultsString = fail.body.error;
       let parts = resultsString.split("ERROR: ");
       if (parts.length > 1) {
         this.analysisResult = parts[1].replace("WARNING:  there is no transaction in progress", "");
