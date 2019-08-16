@@ -1,4 +1,5 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
+import { AuthService } from '../auth/auth.service';
 
 declare let $: any;
 declare function require(name: string);
@@ -166,7 +167,7 @@ export class AnalysisHandler {
 
   // Call to the analyser
   runAnalysisREST(postData: any) {
-    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, this.editor.authService.loadRequestOptions()).subscribe(
+    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions()).subscribe(
       success => {
         this.formatAnalysisResults(success);
       },
