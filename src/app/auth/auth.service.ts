@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 
 import { BehaviorSubject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -85,7 +85,7 @@ export class AuthService {
           }
 
         },
-        (fail: HttpResponse<any>) => {
+        (fail: HttpErrorResponse) => {
           this.loginError(fail.status);
         }
     );

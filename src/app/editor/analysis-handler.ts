@@ -1,7 +1,7 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AuthService } from '../auth/auth.service';
 import {EditorComponent} from './editor.component';
-import {HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 
 declare let $: any;
 declare function require(name: string);
@@ -223,9 +223,9 @@ export class AnalysisHandler {
   }
 
   // Format analysis error string
-  formatAnalysisErrorResults(fail: HttpResponse<any>) {
+  formatAnalysisErrorResults(fail: HttpErrorResponse) {
     if (fail.status === 409) {
-      let resultsString = fail.body.error;
+      let resultsString = fail.error.error;
       let parts = resultsString.split("ERROR: ");
       if (parts.length > 1) {
         this.analysisResult = parts[1].replace("WARNING:  there is no transaction in progress", "");
