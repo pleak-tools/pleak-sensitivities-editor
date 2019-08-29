@@ -225,18 +225,8 @@ export class AnalysisHandler {
   // Format analysis error string
   formatAnalysisErrorResults(fail: HttpErrorResponse) {
     if (fail.status === 409) {
-      let resultsString = fail.error.error;
-      let parts = resultsString.split("ERROR: ");
-      if (parts.length > 1) {
-        this.analysisResult = parts[1].replace("WARNING:  there is no transaction in progress", "");
-      } else {
-        let parts2 = resultsString.split("banach: ");
-        if (parts2.length > 1) {
-          this.analysisResult = parts2[1];
-        } else {
-          this.analysisResult = "Invalid input";
-        }
-      }
+      this.analysisResult = fail.error.error;
+      this.analysisResult = this.analysisResult.replace("WARNING:  there is no transaction in progress", "");
     } else if (fail.status === 400) {
       this.analysisResult = "Analyzer error";
     } else {
