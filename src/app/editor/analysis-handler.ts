@@ -1,7 +1,7 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AuthService } from '../auth/auth.service';
-import {EditorComponent} from './editor.component';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import { EditorComponent } from './editor.component';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 declare let $: any;
 declare function require(name: string);
@@ -32,7 +32,7 @@ export class AnalysisHandler {
   editor: EditorComponent;
   elementsHandler: any;
 
-  analysisInput: any = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
+  analysisInput: any = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "", errorUB: 0.9, sigmoidBeta: 0.01, sigmoidPrecision: 5.0, dateStyle: "European" };
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -47,7 +47,7 @@ export class AnalysisHandler {
     }
 
     // Changes in model, so run new analysis
-    this.analysisInput = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
+    this.analysisInput = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "", errorUB: 0.9, sigmoidBeta: 0.01, sigmoidPrecision: 5.0, dateStyle: "European" };
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
@@ -152,6 +152,10 @@ export class AnalysisHandler {
           this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
           this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
           this.analysisInput.attackerSettings = this.elementsHandler.attackerSettingsHandler.getAttackerSettings();
+          this.analysisInput.errorUB = 0.9; // TODO: read from input
+          this.analysisInput.sigmoidBeta = 0.01; // TODO: read from input
+          this.analysisInput.sigmoidPrecision = 5.0; // TODO: read from input
+          this.analysisInput.dateStyle = "European"; // TODO: read from input
           $('.analysis-spinner').fadeIn();
           $('#analysis-results-panel-content').html('');
           this.runAnalysisREST(this.analysisInput);
@@ -169,7 +173,7 @@ export class AnalysisHandler {
 
   // Call to the analyser
   runAnalysisREST(postData: any) {
-    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
+    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
       success => {
         this.formatAnalysisResults(success);
       },
