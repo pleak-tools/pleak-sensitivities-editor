@@ -342,7 +342,7 @@ export class AnalysisHandler {
 
   // Show one error from analyzer
   showAnalysisErrorResult() {
-    let resultsHtml = '<div style="text-align:left"><font style="color:darkred"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + this.analysisResult + '</font></div>';
+    let resultsHtml = '<div style="text-align:left; word-break: break-word; white-space: pre-wrap;"><font style="color:darkred"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + this.analysisResult + '</font></div>';
     $('.analysis-spinner').hide();
     $('#analysis-results-panel-content').html(resultsHtml);
   }
