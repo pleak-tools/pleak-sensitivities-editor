@@ -14,6 +14,7 @@
         <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1"/>
       </div>
     </div>
+    <hr>
     <div class="row" style="text-align: right">
       <div class="col-md-6">
         <div class="form-group" id="beta-input-form-group">
@@ -27,9 +28,65 @@
         <input class="form-control beta-input" type="number" id="beta-input" value="0.1" step="0.1" style="margin-top:10px"/>
       </div>
     </div>
-    <div class="row" style="text-align:right">
+    <hr>
+    <div class="row">
+      <div class="col-md-6 text-right">
+        <div class="form-group" id="estimated-noise-input-form-group">
+          <label class="text-16" for="estimated-noise-input">Confidence level of estimated noise</label>
+        </div>
+      </div>
+      <div class="col-md-6 text-left">
+        <span id="estimated-noise-label">90</span>%
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <input type="range" id="estimated-noise-input" value="0.9" min="0.0" max="1.0"
+               step="0.01">
+      </div>
+    </div>
+    <hr>
+
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <span id="enable-advanced-settings" style="cursor: pointer; color:deepskyblue;" >Enable advanced settings</span>
+        <span id="disable-advanced-settings" style="display: none; cursor: pointer; color:deepskyblue;">Disable advanced settings</span>
+      </div>
+    </div>
+    <hr>
+    <div id="advanced-settings" style="opacity: 0.4;">
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <label class="text-16" for="sigmoid-smoothness-input">Sigmoid smoothness</label>
+        </div>
+        <div class="col-md-6 text-left">
+          <input type="number" name="" id="sigmoid-smoothness-input" value="0.01" step="0.01" min="0" disabled="disabled">
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <label class="text-16" for="sigmoid-precision-input">Sigmoid precision</label>
+        </div>
+        <div class="col-md-6 text-left">
+          <input type="number" name="" id="sigmoid-precision-input" value="5" step="0.1" min="0" disabled="disabled">
+        </div>
+      </div>
+
+      <hr>
+      <div class="row">
+        <div class="col-md-6 text-right">
+          <label class="text-16" for="datestyle-input">PSQL datestyle</label>
+        </div>
+        <div class="col-md-6 text-left">
+          <input type="text" id="datestyle-input" value="European" disabled="disabled">
+        </div>
+      </div>
+      <hr>
+    </div>
+    <div class="row">
       <div class="col-md-12">
-        <button id="attacker-settings-button" type="button" class="btn btn-default pull-left" style="margin-top:10px">Attacker settings</button>
+        <button id="attacker-settings-button" type="button" class="btn btn-default" style="margin-top:10px">Table Constraints</button>
         <button id="run-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run analysis</button>
       </div>
     </div>

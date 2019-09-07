@@ -32,7 +32,18 @@ export class AnalysisHandler {
   editor: EditorComponent;
   elementsHandler: any;
 
-  analysisInput: any = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
+  analysisInput: any = {
+    children: [],
+    queries: '',
+    epsilon: 1,
+    beta: 0.1,
+    schemas: '',
+    attackerSettings: '',
+    errorUB: 0.9,
+    sigmoidBeta: 0.01,
+    sigmoidPrecision: 5.0,
+    dateStyle: 'European'
+  };
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -41,13 +52,32 @@ export class AnalysisHandler {
 
   init() {
     // No changes in model, so show previous analysis results
-    if (!this.getChangesInModelStatus() && Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) && Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) && this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings()) {
+    if (!this.getChangesInModelStatus() &&
+        Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) &&
+        Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) &&
+        this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings() &&
+        Number.parseFloat(this.analysisInput.errorUB) == Number.parseFloat($('#estimated-noise-input').val()) &&
+        Number.parseFloat(this.analysisInput.sigmoidBeta) == Number.parseFloat($('#sigmoid-smoothness-input').val()) &&
+        Number.parseFloat(this.analysisInput.sigmoidPrecision) == Number.parseFloat($('#sigmoid-precision-input').val()) &&
+        this.analysisInput.dateStyle == $('#datestyle-input').val()
+    ) {
       this.showAnalysisResults();
       return;
     }
 
     // Changes in model, so run new analysis
-    this.analysisInput = { children: [], queries: "", epsilon: 1, beta: 0.1, schemas: "", attackerSettings: "" };
+    this.analysisInput = {
+      children: [],
+      queries: '',
+      epsilon: 1,
+      beta: 0.1,
+      schemas: '',
+      attackerSettings: '',
+      errorUB: 0.9,
+      sigmoidBeta: 0.01,
+      sigmoidPrecision: 5.0,
+      dateStyle: 'European'
+    };
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
     for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
@@ -105,6 +135,27 @@ export class AnalysisHandler {
       e.stopPropagation();
       this.elementsHandler.attackerSettingsHandler.initAttackerSettingsEditProcess();
     });
+
+    $(document).find('#estimated-noise-input').on('input', (e) => {
+      let percent = Math.round($('#estimated-noise-input').val() * 100);
+      $('#analysis-panel').find('#estimated-noise-label').text(percent);
+    });
+
+    $('#analysis-panel').on('click', '#disable-advanced-settings', (event) => {
+      $('#advanced-settings').find('input').attr('disabled', true);
+      $('#advanced-settings').css('opacity', '0.4');
+      $(event.target).hide();
+      $('#enable-advanced-settings').show();
+      this.setChangesInModelStatus(true);
+    });
+
+    $('#analysis-panel').on('click', '#enable-advanced-settings', (event) => {
+      $('#advanced-settings').find('input').attr('disabled', false);
+      $('#advanced-settings').css('opacity', '1');
+      $(event.target).hide();
+      $('#disable-advanced-settings').show();
+      this.setChangesInModelStatus(true);
+    });
   }
 
   // Format analyser input and send it to the analyser
@@ -152,6 +203,12 @@ export class AnalysisHandler {
           this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
           this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
           this.analysisInput.attackerSettings = this.elementsHandler.attackerSettingsHandler.getAttackerSettings();
+
+          this.analysisInput.errorUB = Number.parseFloat($('#estimated-noise-input').val());
+          this.analysisInput.sigmoidBeta = $('#sigmoid-smoothness-input').attr('disabled') ? -1 : Number.parseFloat($('#sigmoid-smoothness-input').val());
+          this.analysisInput.sigmoidPrecision = $('#sigmoid-precision-input').attr('disabled') ? -1 : Number.parseFloat($('#sigmoid-precision-input').val());
+          this.analysisInput.dateStyle = $('#datestyle-input').attr('disabled') ? -1 : $('#datestyle-input').val();
+
           $('.analysis-spinner').fadeIn();
           $('#analysis-results-panel-content').html('');
           this.runAnalysisREST(this.analysisInput);
@@ -182,41 +239,22 @@ export class AnalysisHandler {
   // Format analysis result string
   formatAnalysisResults(success: HttpResponse<any>) {
     if (success.status === 200) {
-      let resultsString = success.body.result;
+      const resultsString = success.body.result;
       if (resultsString) {
-        let lines = resultsString.split(String.fromCharCode(30));
-        let results = []
-        for (let line of lines) {
-          let parts = line.split(String.fromCharCode(31));
-          let taskName = parts[0];
-          let taskHandler = this.getTaskHandlerByPreparedTaskName(taskName);
-          if (!taskHandler) {
-            let taskHandlers = this.getAllModelTaskHandlers();
-            for (let sTaskHandler of taskHandlers) {
-              let taskSchema = sTaskHandler.getPreparedSchema();
-              if (taskSchema.success.tableName == taskName) {
-                taskHandler = sTaskHandler;
-              }
+        const lines = resultsString.split(String.fromCharCode(30));
+
+        this.analysisResult = lines.map(
+            (line) => {
+              return line.split(String.fromCharCode(31)).map(
+                  (item) => {
+                    return item.split(String.fromCharCode(29));
+                  }
+              );
             }
-          }
-          let order = 0;
-          let taskWithTaskId = this.analysisInputTasksOrder.filter(function (obj) {
-            return obj.id == taskHandler.task.id;
-          });
-          if (taskWithTaskId.length > 0) {
-            order = taskWithTaskId[0].order;
-          }
-          let taskInfo = { id: taskHandler.task.id, name: taskHandler.task.name, children: [], order: order }
-          for (let i = 1; i < parts.length; i++) {
-            if (i == 1 || i % 5 == 1) {
-              let tbl = { tableId: 0, name: parts[i], qoutput: parts[i + 2], anoise: parts[i + 3], sensitivity: parts[i + 1], error: parts[i + 4] }
-              taskInfo.children.push(tbl);
-            }
-          }
-          results.push(taskInfo);
-          this.analysisResult = results;
-          this.setChangesInModelStatus(false);
-        }
+        );
+
+        this.setChangesInModelStatus(false);
+
         this.showAnalysisResults();
       }
     }
@@ -238,80 +276,89 @@ export class AnalysisHandler {
   // Show analysis results table
   showAnalysisResults() {
     if (this.analysisResult) {
-      let resultsHtml = '';
-      for (let i = 0; i < this.analysisResult.length; i++) {
-        let matchingTask = this.analysisResult.filter(function (obj) {
-          return obj.order == i;
-        });
-        if (matchingTask.length > 0) {
-          let resultObject = matchingTask[0];
-          let resultObjectName = resultObject.name;
-          if (this.getTaskHandlerByTaskId(resultObject.id).getPreparedSchema().success) {
-            resultObjectName = this.getTaskHandlerByTaskId(resultObject.id).getPreparedSchema().success.tableName;
-          }
+      let resultDiv = '';
 
-          let resultDiv = `
-           <div class="" id="` + resultObject.id + `-analysis-results">
-              <div class="panel panel-default" style="cursor:pointer; margin-bottom:10px!important" data-toggle="collapse" data-target="#` + resultObject.id + `-panel" aria-expanded="false" aria-controls="` + resultObject.id + `-panel">
-                <div align="center" class="panel-heading" style="background-color:#eae8e8">
-                  <b><span style="font-size: 16px; color: #666">` + resultObjectName + `</span></b>
-                </div>
-              </div>
-              <div align="left" class="collapse collapsed" id="` + resultObject.id + `-panel" style="margin-bottom: 10px; margin-top: -10px">`;
-          let tmp = "";
-          for (let tblObject of resultObject.children) {
-            let sensitivity: any = Number.parseFloat(tblObject.sensitivity).toFixed(5);
-            sensitivity = (sensitivity == 0 ? 0 : sensitivity);
-            sensitivity = (isNaN(sensitivity) ? "&infin;" : sensitivity);
+      let getLine = (line) => {
+        line.shift();
 
-            let error: any = Number.parseFloat(tblObject.error).toFixed(5);
-            error = (error == 0 ? 0 : error);
-            error = (isNaN(error) ? "&infin;" : error + " %");
-
-            let addedNoise: any = tblObject.anoise;
-            let queryOutput: any = tblObject.qoutput;
-
-            let resultSubDiv = `
+        return line.reduce((value, item) => {
+          return value + `
                 <div class="panel panel-default sub-panel">
                   <div class="panel-heading" style="text-align:center;">
-                    <b>` + tblObject.name + `</b>
+                    <b>` + item[0] + `</b>
                   </div>
                   <div class="panel-body">
                     <table style="width:100%">
                       <tbody>
-                        <tr><td style="width:70%"><b>Derivative sensitivity</b></td><td>` + sensitivity + `</td><tr>
-                        <tr><td style="width:70%"><b>Additive noise</b></td><td>` + addedNoise + `</td><tr>
-                        <tr><td style="width:70%"><b>Query output</b></td><td>` + queryOutput + `</td><tr>
-                        <tr><td style="width:70%"><b>Relative error <br/>(additive noise / query output)</b></td><td>` + error + `</td><tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>beta-smooth sensitivity</strong></td>
+                         <td>` + item[1] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>actual outputs y</strong></td>
+                         <td>` + item[2] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-noise magnitude </strong></td>
+                         <td>` + item[3] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-realtive error |a|/|y|</strong></td>
+                         <td>` + item[4] + `</td>
+                        <tr>
+                        <tr class="view-more-results-div">
+                            <td colspan="2"  style="text-align:right;margin-top:10px;margin-bottom:10px"><span class="more-results-link">View more</span></td>
+                        </tr>
+                      </tbody>
+                      <tbody style="display:none" class="more-analysis-results">
+                        <tr>
+                         <td style="text-align: left;"><strong>smoothness beta (after optimization)</strong></td>
+                         <td>` + item[5] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>delta (Laplace only)</strong></td>
+                         <td>` + item[6] + `</td>
+                        <tr>
+                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-noise magnitude (Laplace)</strong></td>
+                         <td>` + item[7] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-realtive error (Laplace)</strong></td>
+                         <td>` + item[8] + `</td>
+                        <tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>norm N</strong></td>
+                         <td>` + item[9] + `</td>
+                        <tr>
                       </tbody>
                     </table>
                   </div>
                 </div>`;
-            if (tblObject.name != "all input tables together") {
-              resultDiv += resultSubDiv;
-            } else {
-              let resultDivTmp = `
-           <div class="" id="general-analysis-results">
-              <div class="panel panel-default" style="cursor:pointer; margin-bottom:10px!important;" data-toggle="collapse" data-target="#general-panel" aria-expanded="false" aria-controls="general-panel">
-                <div align="center" class="panel-heading" style="background-color:#ddd">
-                  <b><span style="font-size: 16px; color: #666">summary</span></b>
+        }, '');
+      };
+
+      this.analysisResult.forEach((line, i) => {
+        resultDiv += `
+           <div class="" id="` + i + `-analysis-results">
+              <div class="panel panel-default" style="cursor:pointer; margin-bottom:10px!important" data-toggle="collapse" data-target="#` + i + `-panel" aria-expanded="true" aria-controls="` + i + `-panel">
+                <div align="center" class="panel-heading" style="background-color:#eae8e8">
+                  <b><span style="font-size: 16px; color: #666">` + line[0] + `</span></b>
                 </div>
               </div>
-              <div align="left" class="collapse in" id="general-panel" style="margin-bottom: 10px; margin-top: -10px">`;
-              tmp = "<hr/>" + resultDivTmp + resultSubDiv + `
+              <div align="left" class="collapse in" id="` + i + `-panel" style="margin-bottom: 10px; margin-top: -10px">
+              ` + getLine(line) + `
               </div>
             </div>`;
-            }
-          }
-          resultDiv += `
-              </div>
-            </div>`;
-          resultDiv += tmp;
-          resultsHtml += resultDiv;
-        }
-      }
+      });
+
       $('.analysis-spinner').hide();
-      $('#analysis-results-panel-content').html(resultsHtml);
+      $('#analysis-results-panel-content').html(resultDiv);
+
+      $('#analysis-results-panel-content').on('click', '.more-results-link', (event) => {
+        console.log(event.target);
+        $(event.target).parents('.panel-body').find('.more-analysis-results').show();
+        $(event.target).parents('.panel-body').find('.view-more-results-div').hide();
+      });
     }
   }
 

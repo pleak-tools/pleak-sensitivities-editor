@@ -221,8 +221,24 @@ html, body, #canvas, #canvas > div {
   min-height: 60px;
 }
 
-/* */
+
+.more-results-link {
+  font-weight: normal;
+  cursor: pointer;
+  color: deepskyblue;
+  &:hover {
+    text-decoration: underline;
+  }
+}
 .sub-panel {
   margin-bottom: 0px!important;
   border-radius: 0px!important;
+
+  tr {
+    border-bottom: 1px solid #dddddd;
+    td {
+      padding: 4px 0;
+      text-align: right;
+    }
+  }
 }

@@ -141,7 +141,7 @@ export class AttackerSettingsHandler {
 
   checkForUnsavedAttackerSettingsChangesBeforeTerminate() {
     if (this.areThereUnsavedChanges()) {
-      if (confirm('Are you sure you wish to revert unsaved attacker settings?')) {
+      if (confirm('Are you sure you wish to revert unsaved table constraints?')) {
         this.terminateAttackerSettingsPanel();
       } else {
         return false;
