@@ -8,6 +8,7 @@ import { EditorComponent } from './editor/editor.component';
 
 import { AuthService } from './auth/auth.service';
 import { ToastrModule } from 'ngx-toastr';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { ToastrModule } from 'ngx-toastr';
     EditorComponent
   ],
   imports: [
+    NoopAnimationsModule,
     BrowserModule,
     FormsModule,
     HttpClientModule,
