@@ -40,6 +40,7 @@ export class ElementsHandler {
   init() {
     // Import model from xml file
     this.viewer.importXML(this.diagram, () => {
+      this.canvas.zoom('fit-viewport','auto');
       this.viewer.get("moddle").fromXML(this.diagram, (err:any, definitions:any) => {
         if (typeof definitions !== 'undefined') {
           // Add stereotype labels to elements based on xml labels
