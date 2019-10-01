@@ -355,7 +355,6 @@ export class AnalysisHandler {
       $('#analysis-results-panel-content').html(resultDiv);
 
       $('#analysis-results-panel-content').on('click', '.more-results-link', (event) => {
-        console.log(event.target);
         $(event.target).parents('.panel-body').find('.more-analysis-results').show();
         $(event.target).parents('.panel-body').find('.view-more-results-div').hide();
       });
