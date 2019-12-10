@@ -3,7 +3,7 @@ import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 declare let $: any;
 declare let CodeMirror: any;
 
-declare function require(name:string);
+declare function require(name: string);
 let config = require('../../config.json');
 
 let attackerKnowledgeCodeMirror;
@@ -20,24 +20,27 @@ export class AttackerSettingsHandler {
     this.elementsHandler = parent;
     this.editor = parent.parent;
   }
-    
+
   viewer: Viewer;
   eventBus: any;
   registry: any;
   canvas: any;
   overlays: any;
   diagram: String;
-    
+
   editor: any;
   elementsHandler: any;
 
   attackerSettingsPanelContainer: any;
 
   getSavedAttackerSettings() {
-    let root = this.registry.get('Process_1');
-    let attackerPriorKnowledge = "";
+    let rootElement = this.canvas.getRootElement();
+    let root = null;
+    if (rootElement && rootElement.businessObject) {
+      root = this.registry.get(rootElement.businessObject.id);
+    }
     if (root && root.businessObject && root.businessObject.policyInfo != null) {
-      return attackerPriorKnowledge = JSON.parse(root.businessObject.policyInfo).attackerKnowledge;
+      return JSON.parse(root.businessObject.policyInfo).attackerKnowledge;
     } else {
       return null;
     }
@@ -91,7 +94,7 @@ export class AttackerSettingsHandler {
       attackerPriorKnowledge = "";
     }
     attackerKnowledgeCodeMirror.setValue(attackerPriorKnowledge);
-    setTimeout(function() {
+    setTimeout(function () {
       attackerKnowledgeCodeMirror.refresh();
     }, 10);
     this.initAttackerSettingsButtons();
@@ -123,12 +126,17 @@ export class AttackerSettingsHandler {
   updateAttackerSettings() {
     let attackerKnowledge = attackerKnowledgeCodeMirror.getValue();
     let sensitiveAttributes = "";
-    let root = this.registry.get('Process_1');
+
+    let rootElement = this.canvas.getRootElement();
+    let root = null;
+    if (rootElement && rootElement.businessObject) {
+      root = this.registry.get(rootElement.businessObject.id);
+    }
     if (root && root.businessObject) {
       if (root.businessObject.policyInfo != null) {
         sensitiveAttributes = JSON.parse(root.businessObject.policyInfo).sensitiveAttributes;
       }
-      let object = {attackerKnowledge: attackerKnowledge, sensitiveAttributes: sensitiveAttributes};
+      let object = { attackerKnowledge: attackerKnowledge, sensitiveAttributes: sensitiveAttributes };
       root.businessObject.policyInfo = JSON.stringify(object);
     }
   }
