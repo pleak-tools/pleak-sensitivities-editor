@@ -149,10 +149,7 @@ export class AttackerSettingsHandler {
   }
 
   areAttackerSettingsLoaded() {
-    if ($('#sidebar').has('#attacker-settings-panel').length) {
-      return true;
-    }
-    return false;
+    return $('#attacker-settings-panel').is(":visible");
   }
 
   setNewModelContentVariableContent() {
