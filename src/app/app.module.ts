@@ -5,15 +5,19 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { EditorComponent } from './editor/editor.component';
+import { SanitizeHtmlPipe } from './microcode/sanitizer';
 
 import { AuthService } from './auth/auth.service';
 import { ToastrModule } from 'ngx-toastr';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    EditorComponent
+    EditorComponent,
+    SidebarComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     NoopAnimationsModule,

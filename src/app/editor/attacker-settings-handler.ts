@@ -60,17 +60,7 @@ export class AttackerSettingsHandler {
 
   initAttackerSettingsEditProcess() {
     if (!$('#attacker-settings-panel').is(":visible")) {
-      this.loadAttackerSettingsPanelTemplate();
-    }
-  }
-
-  loadAttackerSettingsPanelTemplate() {
-    if ($('#sidebar').has('#attacker-settings-panel').length) {
       this.initAttackerSettingsPanel();
-    } else {
-      $('#sidebar').append($('<div>').load(config.frontend.host + '/' + config.guessing_advantage_editor.folder + '/src/app/editor/templates/attacker-settings-panel.html', () => {
-        this.initAttackerSettingsPanel();
-      }));
     }
   }
 

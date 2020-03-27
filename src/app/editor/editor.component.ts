@@ -1,13 +1,17 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { SqlBPMNModdle } from './bpmn-labels-extension';
 import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
 
 import { ElementsHandler } from './elements-handler';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Analyser } from '../analyser/SQLDFlowAnalizer';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 declare let $: any;
+
 declare function require(name: string);
+
 const is = (element, type) => element.$instanceOf(type);
 
 const pg_parser = require('exports-loader?Module!pgparser/pg_query.js');
@@ -31,7 +35,7 @@ export class EditorComponent implements OnInit {
     }
     this.authService.authStatus.subscribe(status => {
       this.authenticated = status;
-      if (typeof(status) === 'boolean') {
+      if (typeof (status) === 'boolean') {
         this.getModel();
       }
     });
@@ -39,6 +43,7 @@ export class EditorComponent implements OnInit {
   }
 
   @Input() authenticated: Boolean;
+  @ViewChild(SidebarComponent, { static: true }) sidebarComponent: SidebarComponent;
 
   public loaded = false;
 
@@ -55,6 +60,10 @@ export class EditorComponent implements OnInit {
   private file: any;
 
   private lastModified: Number = null;
+
+  public analyserMode: 'global' | 'combined' = null;
+
+  public elementsHandler;
 
   isAuthenticated() {
     return this.authenticated;
@@ -95,7 +104,7 @@ export class EditorComponent implements OnInit {
         $('#fileName').text(this.file.title);
         self.lastModified = new Date().getTime();
       },
-      fail => {
+      () => {
         self.fileId = null;
         self.file = null;
         self.lastContent = '';
@@ -107,11 +116,11 @@ export class EditorComponent implements OnInit {
   getPermissions() {
     const self = this;
     this.http.get(config.backend.host + '/rest/directories/files/' + this.fileId, AuthService.loadRequestOptions()).subscribe(
-        (response: any) => {
-          this.file.permissions = response.permissions;
-          this.file.user = response.user;
-          this.file.md5Hash = response.md5Hash;
-        },
+      (response: any) => {
+        this.file.permissions = response.permissions;
+        this.file.user = response.user;
+        this.file.md5Hash = response.md5Hash;
+      },
       () => {},
       () => {
         self.openDiagram(self.file.content);
@@ -121,7 +130,6 @@ export class EditorComponent implements OnInit {
 
   // Load diagram and add editor
   openDiagram(diagram: String) {
-    const self = this;
     if (diagram && this.viewer == null) {
       this.viewer = new NavigatedViewer({
         container: '#canvas',
@@ -133,9 +141,13 @@ export class EditorComponent implements OnInit {
         }
       });
 
-      const elementsHandler = new ElementsHandler(this.viewer, diagram, pg_parser, this, this.canEdit());
+      setTimeout(() => {
+        this.sidebarComponent.init(this.viewer.get('canvas'));
+      }, 100);
 
-      this.addEventHandlers(elementsHandler);
+      this.elementsHandler = new ElementsHandler(this.viewer, diagram, pg_parser, this, this.canEdit());
+
+      this.addEventHandlers(this.elementsHandler);
 
     }
   }
@@ -143,8 +155,12 @@ export class EditorComponent implements OnInit {
   canEdit() {
     const file = this.file;
 
-    if (!file || !this.isAuthenticated()) { return false; }
-    if ((this.authService.user && file.user) ? file.user.email === this.authService.user.email : false) { return true; }
+    if (!file || !this.isAuthenticated()) {
+      return false;
+    }
+    if ((this.authService.user && file.user) ? file.user.email === this.authService.user.email : false) {
+      return true;
+    }
     for (let pIx = 0; pIx < file.permissions.length; pIx++) {
       if (file.permissions[pIx].action.title === 'edit' &&
       this.authService.user ? file.permissions[pIx].user.email === this.authService.user.email : false) {
@@ -152,6 +168,14 @@ export class EditorComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  setCombinedAnalyser() {
+    this.analyserMode = 'combined';
+
+    window.setTimeout(() => {this.elementsHandler.analysisHandler.initAnalysisPanels()}, 500);
+
+    this.sidebarComponent.clear();
   }
 
   addEventHandlers(elementsHandler) {
@@ -169,11 +193,13 @@ export class EditorComponent implements OnInit {
       this.save();
     });
 
-    $('.buttons-container').on('click', '#analyze-diagram', (e) => {
+    $('html').on('click', '#run-global-analysis', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      elementsHandler.analysisHandler.loadAnalysisPanelTemplate();
+      $('#analysis-panels').hide();
+      this.analyse();
     });
+
 
     $(window).on('keydown', (e) => {
       if (e.ctrlKey || e.metaKey) {
@@ -207,6 +233,30 @@ export class EditorComponent implements OnInit {
         }
       }
     });
+
+    $(window).resize(() => {
+      $('#resize-buttons-container').width($('#sidebar').width());
+    });
+
+    $('#resize-inc').on('click', () => {
+      if ($('#sidebar').width() < 0.4 * window.innerWidth) {
+        $('#sidebar').width($('#sidebar').width() * 1.3);
+      }
+      this.loadResizeButtonsMode();
+    });
+
+    $('#resize-dec').on('click', () => {
+      if ($('#sidebar').width() > 250) {
+        if (($('#sidebar').width() / 1.3) < 250) {
+          $('#sidebar').width(250);
+        } else {
+          $('#sidebar').width($('#sidebar').width() / 1.3);
+        }
+      }
+      this.loadResizeButtonsMode();
+    });
+
+    this.loadResizeButtonsMode();
   }
 
   removeEventHandlers() {
@@ -216,6 +266,48 @@ export class EditorComponent implements OnInit {
     $(window).off('keydown');
     $(window).unbind('beforeunload');
     $(window).off('wheel');
+  }
+
+  loadResizeButtonsMode(): void {
+    if ($('#sidebar').width() <= 250) {
+      $('#resize-dec').prop('disabled', true);
+    } else {
+      $('#resize-dec').prop('disabled', false);
+    }
+
+    if ($('#sidebar').width() >= 0.4 * window.innerWidth) {
+      $('#resize-inc').prop('disabled', true);
+    } else {
+      $('#resize-inc').prop('disabled', false);
+    }
+    $("#resize-buttons-container").css('width', $('#sidebar').width());
+  }
+
+  initExportButton(): void {
+    this.loadExportButton();
+    $(document).off('click', '#download-diagram');
+    $(document).on('click', '#download-diagram', (e) => {
+      this.loadExportButton();
+    });
+
+  }
+
+  loadExportButton(): void {
+    this.viewer.saveXML(
+      {
+        format: true
+      },
+      (err: any, xml: string) => {
+        let encodedData = encodeURIComponent(xml);
+        if (xml) {
+          $('#download-diagram-container').removeClass('hidden');
+          $('#download-diagram').addClass('active').attr({
+            'href': 'data:application/bpmn20-xml;charset=UTF-8,' + encodedData,
+            'download': $('#fileName').text()
+          });
+        }
+      }
+    );
   }
 
   // Save model
@@ -231,8 +323,8 @@ export class EditorComponent implements OnInit {
             console.log(err);
           } else {
             self.file.content = xml;
-            this.http.put(config.backend.host + '/rest/directories/files/' + self.fileId, self.file, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
-                (response: HttpResponse<any>) => {
+            this.http.put(config.backend.host + '/rest/directories/files/' + self.fileId, self.file, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
+              (response: HttpResponse<any>) => {
                 if (response.status === 200 || response.status === 201) {
                   const data = response.body;
                   $('#fileSaveSuccess').show();
@@ -251,8 +343,8 @@ export class EditorComponent implements OnInit {
                   self.saveFailed = false;
                   self.setChangesInModelStatus(true);
                 } else if (response.status === 401) {
-                   self.saveFailed = true;
-                   $('#loginModal').modal();
+                  self.saveFailed = true;
+                  $('#loginModal').modal();
                 }
               },
               fail => {
@@ -277,6 +369,43 @@ export class EditorComponent implements OnInit {
     $('#save-diagram').addClass('active');
   }
 
+  analyse() {
+    $('#messageModal').find('.modal-title').text('Analysis in progress...');
+    // this.selectedDataObjects = [];
+    this.viewer.saveXML({ format: true }, (err1: any, xml: string) => {
+      this.viewer.get('moddle').fromXML(xml, (err2: any, definitions: any) => {
+        if (typeof definitions !== 'undefined') {
+          this.viewer.importDefinitions(definitions, () => this.postLoad(definitions));
+        }
+      });
+    });
+  }
+
+  postLoad(definitions: any) {
+    this.sidebarComponent.clearErrors();
+    for (const diagram of definitions.diagrams) {
+      const element = diagram.plane.bpmnElement;
+      if (element.$type === 'bpmn:Process') {
+        this.processBPMNProcess(element);
+      } else {
+        for (const participant of element.participants) {
+          if (participant.processRef) {
+            this.processBPMNProcess(participant.processRef);
+          }
+        }
+      }
+    }
+  }
+
+  processBPMNProcess(element: any) {
+    const registry = this.viewer.get('elementRegistry');
+    const canvas = this.viewer.get('canvas');
+    const eventBus = this.viewer.get('eventBus');
+    const overlays = this.viewer.get('overlays');
+
+    Analyser.analizeSQLDFlow(element, registry, canvas, overlays, eventBus, this.http);
+  }
+
   ngOnInit() {
     window.addEventListener('storage', (e) => {
       if (e.storageArea === localStorage) {
@@ -295,6 +424,14 @@ export class EditorComponent implements OnInit {
           }
         }
       }
+    });
+
+    Analyser.analysisCompleted.subscribe(result => {
+      this.sidebarComponent.emitTaskResult(result);
+    });
+
+    Analyser.analysisError.subscribe(errors => {
+      this.sidebarComponent.displayErrors(errors);
     });
   }
 

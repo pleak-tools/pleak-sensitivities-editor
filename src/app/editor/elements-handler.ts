@@ -45,6 +45,7 @@ export class ElementsHandler {
         if (typeof definitions !== 'undefined') {
           // Add stereotype labels to elements based on xml labels
           this.viewer.importDefinitions(definitions, () => this.createElementHandlerInstances(definitions));
+          this.parent.initExportButton();
         }
       });
       // Add click event listener to init and terminate stereotype processes
@@ -53,14 +54,14 @@ export class ElementsHandler {
         if (is(e.element.businessObject, 'bpmn:Task') || (is(e.element.businessObject, 'bpmn:DataObjectReference') && e.element.incoming.length === 0)) {
           this.canvas.removeMarker(e.element.id, 'selected');
           let beingEditedElementHandler = this.taskHandlers.filter(function( obj ) {
-            return obj.task != e.element.businessObject && obj.beingEdited;
+            return obj.task.id != e.element.businessObject.id && obj.beingEdited;
           });
           if (beingEditedElementHandler.length > 0) {
             beingEditedElementHandler[0].checkForUnsavedTaskChangesBeforeTerminate();
           }
 
           let beingEditedDataObjectHandler = this.dataObjectHandlers.filter(function( obj ) {
-            return obj.dataObject != e.element.businessObject && obj.beingEdited;
+            return obj.dataObject.id != e.element.businessObject.id && obj.beingEdited;
           });
           if (beingEditedDataObjectHandler.length > 0) {
             beingEditedDataObjectHandler[0].checkForUnsavedDataObjectChangesBeforeTerminate();
@@ -71,14 +72,14 @@ export class ElementsHandler {
         if (!this.isAnotherTaskOrDataObjectBeingEdited(e.element.id)) {
           if (is(e.element.businessObject, 'bpmn:Task')) {
             toBeEditedelementHandler = this.taskHandlers.filter(function( obj ) {
-              return obj.task == e.element.businessObject && obj.beingEdited == false;
+              return obj.task.id == e.element.businessObject.id && obj.beingEdited == false;
             });
             if (toBeEditedelementHandler.length > 0) {
               toBeEditedelementHandler[0].initTaskOptionsEditProcess();
             }
           } else if (is(e.element.businessObject, 'bpmn:DataObjectReference') && e.element.incoming.length === 0) {
             toBeEditedelementHandler = this.dataObjectHandlers.filter(function( obj ) {
-              return obj.dataObject == e.element.businessObject && obj.beingEdited == false;
+              return obj.dataObject.id == e.element.businessObject.id && obj.beingEdited == false;
             });
             if (toBeEditedelementHandler.length > 0) {
               toBeEditedelementHandler[0].initDataObjectOptionsEditProcess();

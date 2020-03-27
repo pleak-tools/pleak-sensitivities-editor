@@ -1,6 +1,6 @@
 {
-  "name": "pleak-sql-derivative-sensitivity-editor",
-  "version": "0.0.2",
+  "name": "pleak-sensitivities-editor",
+  "version": "0.0.3",
   "license": "MIT",
   "scripts": {
     "ng": "ng",

@@ -45,7 +45,12 @@ export class DataObjectHandler {
   }
 
   getDataObjectInputSchema() {
+    if (this.dataObject.sqlScript) {
+      return this.dataObject.sqlScript;
+    }
+
     let inputSchema = "";
+
     if (this.dataObject.sqlDataObjectInfo != null) {
       let savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
       inputSchema = savedData.inputSchema;
@@ -114,16 +119,14 @@ export class DataObjectHandler {
     let savedData;
     let inputNRM = "";
     let inputDB = [];
-    let inputSchema = "";
+    let inputSchema = this.getDataObjectInputSchema();
     if (this.dataObject.sqlDataObjectInfo != null) {
       savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
-      inputSchema = savedData.inputSchema;
       inputNRM = savedData.inputNRM;
       inputDB = savedData.inputDB;
     }
 
-    $('.CodeMirror').remove();
-
+    $('.task-options-panel, .data-object-options-panel').find('.CodeMirror').remove();
     this.dataObjectOptionsPanelContainer.find('#data-object-schemaInput').val(inputSchema);
     schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("data-object-schemaInput"), {
       mode: "text/x-mysql",
@@ -173,7 +176,7 @@ export class DataObjectHandler {
     this.initDataObjectOptionsButtons();
     let optionsPanel = this.dataObjectOptionsPanelContainer;
     optionsPanel.detach();
-    $('#sidebar').prepend(optionsPanel);
+    $('#sidebar .divider').after(optionsPanel);
     $('#sidebar').scrollTop(0);
     this.dataObjectOptionsPanelContainer.show();
 
@@ -181,10 +184,10 @@ export class DataObjectHandler {
 
   getPreparedQueries() {
     let savedData;
-    let inputSchema, inputNRM, inputDB = "";
+    let inputSchema = this.getDataObjectInputSchema();
+    let inputNRM, inputDB = "";
     if (this.dataObject.sqlDataObjectInfo != null) {
       savedData = JSON.parse(this.dataObject.sqlDataObjectInfo);
-      inputSchema = savedData.inputSchema;
       inputNRM = savedData.inputNRM;
       inputDB = savedData.inputDB;
     }
@@ -247,6 +250,7 @@ export class DataObjectHandler {
       }
     }
     let object = {inputNRM: inputNRM, inputDB: cleanedInputDB, inputSchema: inputSchema};
+    this.dataObject.sqlScript = inputSchema;
     this.dataObject.sqlDataObjectInfo = JSON.stringify(object);
   }
 
@@ -255,7 +259,7 @@ export class DataObjectHandler {
     this.terminateDataObjectOptionsEditProcess();
     this.setNewModelContentVariableContent();
   }
-  
+
   removeDataObjectOptions() {
     this.terminateDataObjectOptionsEditProcess();
     delete this.dataObject.sqlDataObjectInfo;

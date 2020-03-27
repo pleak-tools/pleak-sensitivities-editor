@@ -243,6 +243,102 @@ html, body, #canvas, #canvas > div {
   }
 }
 
+
+/** Sensitivity matrix **/
+
+input.inlined-matrix {
+  border: none;
+  min-width: 60px;
+  width: 100%;
+  font-size: 14px;
+  background-color: white;
+}
+
+input.inlined-matrix:hover {
+  background-color: #eee;
+}
+
+input.inlined-matrix:focus {
+  background-color: #ccf;
+}
+
+input.inlined-matrix:not(:focus) {
+  text-align: right;
+}
+
+table.inlined-matrix {
+  border-collapse: collapse;
+}
+
+td.inlined-matrix {
+  border: 1px solid #999;
+  padding: 0;
+  min-width: 70px;
+  text-align: center;
+  background-color: white;
+  cursor: pointer;
+}
+
+.cell-selected {
+  background-color: #f5f5f5 !important;
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+td.inlined-matrix:hover {
+  background-color: #c9c1c1;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+tr.inlined-matrix:first-child td.inlined-matrix, td.inlined-matrix:first-child {
+  background-color: #f5f5f5;
+  color: #000;
+  padding: 5px 5px;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  min-width: 30px;
+}
+
+#messageModal {
+  div.modal-body {
+    text-align: center;
+  }
+}
+
+.result-matrix {
+  display: inline-table;
+}
+
+.group-fullheight {
+  display: inline-block;
+  position:absolute;
+  top: 0;
+  height: 100%;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.group-fullheight > button {
+  display: inline-block;
+  height: 100%;
+}
+
+.code-error {
+  background-color: transparent;
+  color: #a94442;
+  border-radius: 5px;
+  font-size: 14px;
+  padding: 5px;
+  min-height: 16px;
+  width: 400px;
+  text-align: left;
+}
+
 .clickable {
   cursor: pointer;
   color: deepskyblue;

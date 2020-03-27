@@ -1,0 +1,84 @@
+<div class="container">
+
+    <div [hidden]="!isEditing" class="panel-section">
+        <div class="panel panel-default">
+            <div class="panel-heading text-left">
+                <button class="btn btn-default pull-right" type="button" id="CancelEditing" (click)="clear()">X</button>
+                <b><h4 class="elementTitle"></h4></b>
+            </div>
+            <div class="panel-body codemirror-container">
+                <textarea id="CodeEditor" style="display: none; width: 200px;"></textarea>
+            </div>
+        </div>
+
+        <button *ngIf="canEdit" class="btn btn-success" id="SaveEditing" (click)="clear()">Save</button>
+    </div>
+
+    <div *ngIf="errors.length" style="background-color:#fff; border-radius:4px; padding:10px;">
+        <button class="btn btn-default pull-right" type="button" (click)="clear()">X</button>
+        <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Global sensitivity analysis results</h2>
+        <ol style="text-align: left;">
+            <li *ngFor="let error of errors"
+                [ngStyle]="{'font-weight': error.id === highlighterError ? 'bold': 'normal'}" class="error-list-element"
+                (click)="showErrorNode(error.id)"
+                style="font-size:16px; color:darkred; cursor:pointer;">{{error.error}}</li>
+        </ol>
+    </div>
+
+    <div *ngIf="resultTable.length" style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
+
+        <button class="btn btn-default pull-right" type="button" (click)="clear()">X</button>
+        <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Global sensitivity analysis results</h2>
+        <button type="button" class="btn btn-info" (click)="showResults()">Show sensitivity matrix</button>
+
+        <ng-container *ngIf="analysisSteps.length" >
+            <h3 class="text-left" >{{sidebarTitle}}</h3>
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default" *ngFor="let result of analysisSteps">
+                    <div class="panel-heading" role="tab" [id]="result.nodeId + 'Heading'">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" [href]="'#' + result.nodeId + 'Result'"
+                               aria-expanded="false">
+                                <div class="row">
+                                    <div class="col-xs-10 title">{{result.nodeName}}</div>
+                                    <div class="col-xs-2 collapser"></div>
+                                </div>
+                            </a>
+                        </h4>
+                    </div>
+                    <div [id]="result.nodeId + 'Result'" class="panel-collapse collapse" role="tabpanel"
+                         [ngSwitch]="!!result.overlayHtml[0].innerHTML">
+                        <div *ngSwitchCase="true" [innerHTML]="result.overlayHtml[0].innerHTML | sanitizeHtml"></div>
+                        <div *ngSwitchCase="false" [innerHTML]="result.overlayHtml | sanitizeHtml"></div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+
+
+
+    <div class="clearfix"></div>
+
+    <div *ngIf="isShowRoles" class="panel-section">
+        <div>
+            <h3 class="title">Available Roles</h3>
+        </div>
+        <div class="panel-group" role="tablist" aria-multiselectable="false">
+            <div class="panel panel-default">
+                <table class="table table-striped table-sm table-hover">
+                    <tbody>
+                    <tr *ngFor="let role of roles">
+                        <td>
+                            <h4><span>{{role}}</span></h4>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "pleak-sql-derivative-sensitivity-editor": {
+    "pleak-sensitivities-editor": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -42,7 +42,7 @@
           },
           "configurations": {
             "production": {
-              "deployUrl": "pleak-sql-derivative-sensitivity-editor/dist/",
+              "deployUrl": "pleak-sensitivities-editor/dist/",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -64,18 +64,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "pleak-sql-derivative-sensitivity-editor:build"
+            "browserTarget": "pleak-sensitivities-editor:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "pleak-sql-derivative-sensitivity-editor:build:production"
+              "browserTarget": "pleak-sensitivities-editor:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "pleak-sql-derivative-sensitivity-editor:build"
+            "browserTarget": "pleak-sensitivities-editor:build"
           }
         },
         "lint": {
@@ -93,7 +93,7 @@
       }
     }
   },
-  "defaultProject": "pleak-sql-derivative-sensitivity-editor",
+  "defaultProject": "pleak-sensitivities-editor",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

@@ -17,7 +17,7 @@
         "folder": "pleak-pe-bpmn-editor"
     },
     "sql_derivative_sensitivity_editor": {
-        "folder": "pleak-sql-derivative-sensitivity-editor"
+        "folder": "pleak-sensitivities-editor"
     },
     "guessing_advantage_editor": {
         "folder": "pleak-guessing-advantage-editor"

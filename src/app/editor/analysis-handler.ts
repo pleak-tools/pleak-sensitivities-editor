@@ -1,13 +1,15 @@
 import * as Viewer from 'bpmn-js/lib/NavigatedViewer';
 import { AuthService } from '../auth/auth.service';
-import { EditorComponent } from './editor.component';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { EditorComponent } from './editor.component';
 
 declare let $: any;
-declare function require(name: string);
-let is = (element, type) => element.$instanceOf(type);
 
-let config = require('../../config.json');
+declare function require(name: string);
+
+const is = (element, type) => element.$instanceOf(type);
+
+const config = require('../../config.json');
 
 export class AnalysisHandler {
 
@@ -39,11 +41,14 @@ export class AnalysisHandler {
     beta: 0.1,
     schemas: '',
     attackerSettings: '',
+    distanceG: 1.0,
     errorUB: 0.9,
     sigmoidBeta: 0.01,
     sigmoidPrecision: 5.0,
     dateStyle: 'European'
   };
+
+  analysisType: 'CS' | 'DS';
   analysisResult: any = null;
   analysisInputTasksOrder: any = [];
 
@@ -53,13 +58,13 @@ export class AnalysisHandler {
   init() {
     // No changes in model, so show previous analysis results
     if (!this.getChangesInModelStatus() &&
-        Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) &&
-        Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) &&
-        this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings() &&
-        Number.parseFloat(this.analysisInput.errorUB) == Number.parseFloat($('#estimated-noise-input').val()) &&
-        Number.parseFloat(this.analysisInput.sigmoidBeta) == Number.parseFloat($('#sigmoid-smoothness-input').val()) &&
-        Number.parseFloat(this.analysisInput.sigmoidPrecision) == Number.parseFloat($('#sigmoid-precision-input').val()) &&
-        this.analysisInput.dateStyle == $('#datestyle-input').val()
+      Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) &&
+      Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) &&
+      this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings() &&
+      Number.parseFloat(this.analysisInput.errorUB) == Number.parseFloat($('#estimated-noise-input').val()) &&
+      Number.parseFloat(this.analysisInput.sigmoidBeta) == Number.parseFloat($('#sigmoid-smoothness-input').val()) &&
+      Number.parseFloat(this.analysisInput.sigmoidPrecision) == Number.parseFloat($('#sigmoid-precision-input').val()) &&
+      this.analysisInput.dateStyle == $('#datestyle-input').val()
     ) {
       this.showAnalysisResults();
       return;
@@ -73,6 +78,7 @@ export class AnalysisHandler {
       beta: 0.1,
       schemas: '',
       attackerSettings: '',
+      distanceG: 1.0,
       errorUB: 0.9,
       sigmoidBeta: 0.01,
       sigmoidPrecision: 5.0,
@@ -80,7 +86,7 @@ export class AnalysisHandler {
     };
     let counter = this.getAllModelTaskHandlers().length;
     this.analysisErrors = [];
-    for (let taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
+    for (const taskId of this.getAllModelTaskHandlers().map(a => a.task.id)) {
       this.prepareTaskAnalyzerInput(taskId, counter--, this.getAllModelTaskHandlers().length);
     }
     this.eventBus.on('element.click', (e) => {
@@ -88,23 +94,30 @@ export class AnalysisHandler {
     });
   }
 
-  loadAnalysisPanelTemplate() {
-    if ($('#sidebar').has('#analysis-panel').length) {
-      this.initAnalysisPanels();
-    } else {
-      $('#sidebar').prepend($('<div>').load(config.frontend.host + '/' + config.sql_derivative_sensitivity_editor.folder + '/src/app/editor/templates/analysis-panels.html', () => {
-        this.initAnalysisPanels();
-      }));
-    }
-  }
-
   initAnalysisPanels() {
-    $('#analysis-panel').off('click', '#run-analysis');
-    let analysisPanels = $('#analysis-panels');
-    analysisPanels.detach();
-    $('#sidebar').prepend(analysisPanels);
+    $('#analysis-panel').off('click', '#run-ds-analysis, #run-cs-analysis');
     $('#sidebar').scrollTop(0);
     $('#analysis-panels').show();
+    $('#analysis-panel').on('click', '#run-ds-analysis, #run-cs-analysis', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.target.id === 'run-ds-analysis') {
+        if(this.analysisType !== 'DS')
+          this.setChangesInModelStatus(true);
+        this.analysisType = 'DS';
+      }
+
+
+      if (e.target.id === 'run-cs-analysis') {
+        if(this.analysisType !== 'CS')
+          this.setChangesInModelStatus(true);
+        this.analysisType = 'CS';
+      }
+
+      this.init();
+      $('#analysis-results-panel').show();
+    });
     $('.beta-toggle').bootstrapToggle();
     $('.beta-toggle').change(() => {
       $('.beta-input').toggle();
@@ -114,31 +127,20 @@ export class AnalysisHandler {
         $('.beta-input').val(0.1);
       }
     });
-    $('#analysis-panel').on('click', '#run-analysis', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      let analysisPanels = $('#analysis-panels');
-      analysisPanels.detach();
-      $('#sidebar').prepend(analysisPanels);
-      $('#sidebar').scrollTop(0);
-      this.init();
-      $('#analysis-results-panel').show();
-    });
     $('#analysis-panel').on('click', '#analysis-settings-hide-button', (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.removeErrorHiglights();
       $('#analysis-panels').hide();
     });
+    $(document).find('#estimated-noise-input').on('input', (e) => {
+      let percent = Math.round($('#estimated-noise-input').val() * 100);
+      $('#analysis-panel').find('#estimated-noise-label').text(percent);
+    });
     $('#analysis-panel').on('click', '#attacker-settings-button', (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.elementsHandler.attackerSettingsHandler.initAttackerSettingsEditProcess();
-    });
-
-    $(document).find('#estimated-noise-input').on('input', (e) => {
-      let percent = Math.round($('#estimated-noise-input').val() * 100);
-      $('#analysis-panel').find('#estimated-noise-label').text(percent);
     });
 
     $('#analysis-panel').on('click', '#disable-advanced-settings', (event) => {
@@ -160,8 +162,8 @@ export class AnalysisHandler {
 
   // Format analyser input and send it to the analyser
   prepareTaskAnalyzerInput(taskId: string, counter: number, amount: number) {
-    let task = this.getTaskHandlerByTaskId(taskId);
-    let taskQuery = task.getPreparedQuery();
+    const task = this.getTaskHandlerByTaskId(taskId);
+    const taskQuery = task.getPreparedQuery();
     let taskSchema = task.getPreparedSchema();
     if (taskQuery && taskQuery.success) {
       let taskName = null;
@@ -172,27 +174,27 @@ export class AnalysisHandler {
       } else {
         taskName = taskQuery.success.taskName;
       }
-      let query = taskQuery.success.query;
-      let fullQuery = "";
-      let inputIds = task.getTaskInputObjects().map(a => a.id);
-      let schemasQuery = "";
-      for (let inputId of inputIds) {
-        let dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
+      const query = taskQuery.success.query;
+      let fullQuery = '';
+      const inputIds = task.getTaskInputObjects().map(a => a.id);
+      let schemasQuery = '';
+      for (const inputId of inputIds) {
+        const dataObjectQueries = this.getPreparedQueriesOfDataObjectByDataObjectId(inputId);
         if (dataObjectQueries) {
-          let alreadyAddedDataObject = this.analysisInput.children.filter(function (obj) {
+          const alreadyAddedDataObject = this.analysisInput.children.filter(function (obj) {
             return obj.id == inputId;
           });
           if (alreadyAddedDataObject.length === 0) {
             this.analysisInput.children.push(dataObjectQueries);
             if (dataObjectQueries.schema) {
-              let schema = dataObjectQueries.schema + "\n";
+              const schema = dataObjectQueries.schema + '\n';
               schemasQuery += schema;
             }
           }
         }
       }
-      fullQuery = "INSERT INTO " + taskName + " " + query;
-      this.analysisInput.queries += fullQuery + "\n\n";
+      fullQuery = 'INSERT INTO ' + taskName + ' ' + query; //query
+      this.analysisInput.queries += fullQuery + '\n\n';
       this.analysisInput.schemas += schemasQuery;
       this.analysisInput.schemas += taskSchemaCmd;
       this.analysisInputTasksOrder.push({ id: taskId, order: Math.abs(counter - amount) });
@@ -202,6 +204,7 @@ export class AnalysisHandler {
           this.analysisInput.queries.trim();
           this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
           this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
+          this.analysisInput.distanceG = 1.0; //Number.parseFloat($('.distanceG-input').val());
           this.analysisInput.attackerSettings = this.elementsHandler.attackerSettingsHandler.getAttackerSettings();
 
           this.analysisInput.errorUB = Number.parseFloat($('#estimated-noise-input').val());
@@ -226,11 +229,22 @@ export class AnalysisHandler {
 
   // Call to the analyser
   runAnalysisREST(postData: any) {
-    this.editor.http.post(config.backend.host + '/rest/sql-privacy/analyze-derivative-sensitivity', postData, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
+    let analyzer = '';
+    if (this.analysisType === 'CS') {
+      analyzer = 'analyze-combined-sensitivity';
+    }
+
+    if (this.analysisType === 'DS') {
+      delete postData.distanceG;
+      analyzer = 'analyze-derivative-sensitivity';
+    }
+
+
+    this.editor.http.post(config.backend.host + '/rest/sql-privacy/' + analyzer, postData, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
       success => {
         this.formatAnalysisResults(success);
       },
-      fail => {
+      (fail: HttpErrorResponse) => {
         this.formatAnalysisErrorResults(fail);
       }
     );
@@ -244,13 +258,13 @@ export class AnalysisHandler {
         const lines = resultsString.split(String.fromCharCode(30));
 
         this.analysisResult = lines.map(
-            (line) => {
-              return line.split(String.fromCharCode(31)).map(
-                  (item) => {
-                    return item.split(String.fromCharCode(29));
-                  }
-              );
-            }
+          (line) => {
+            return line.split(String.fromCharCode(31)).map(
+              (item) => {
+                return item.split(String.fromCharCode(29));
+              }
+            );
+          }
         );
 
         this.setChangesInModelStatus(false);
@@ -266,9 +280,9 @@ export class AnalysisHandler {
       this.analysisResult = fail.error.error;
       this.analysisResult = this.analysisResult.replace("WARNING:  there is no transaction in progress", "");
     } else if (fail.status === 400) {
-      this.analysisResult = "Analyzer error";
+      this.analysisResult = 'Analyzer error';
     } else {
-      this.analysisResult = "Server error";
+      this.analysisResult = 'Server error';
     }
     this.showAnalysisErrorResult();
   }
@@ -348,7 +362,8 @@ export class AnalysisHandler {
               <div align="left" class="collapse in" id="` + i + `-panel" style="margin-bottom: 10px; margin-top: -10px">
               ` + getLine(line) + `
               </div>
-            </div>`;
+            </div>
+          </div>`;
       });
 
       $('.analysis-spinner').hide();
@@ -371,12 +386,12 @@ export class AnalysisHandler {
       this.numberOfErrorsInModel = this.analysisErrors.length;
       let errors_list = '<ol style="text-align:left">';
       let i = 0;
-      for (let error of this.analysisErrors) {
-        let errorMsg = error.error.charAt(0).toUpperCase() + error.error.slice(1);
+      for (const error of this.analysisErrors) {
+        const errorMsg = error.error.charAt(0).toUpperCase() + error.error.slice(1);
         errors_list += '<li class="error-list-element error-' + i + '" style="font-size:16px; color:darkred; cursor:pointer;">' + errorMsg + '</li>';
         $('#analysis-results-panel-content').on('click', '.error-' + i, (e) => {
           this.highlightObjectWithErrorByIds(error.object);
-          $(e.target).css("font-weight", "bold");
+          $(e.target).css('font-weight', 'bold');
         });
         i++;
       }
@@ -388,15 +403,15 @@ export class AnalysisHandler {
 
   // Show one error from analyzer
   showAnalysisErrorResult() {
-    let resultsHtml = '<div style="text-align:left; word-break: break-word; white-space: pre-wrap;"><font style="color:darkred"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + this.analysisResult + '</font></div>';
+    const resultsHtml = '<div style="text-align:left; word-break: break-word; white-space: pre-wrap;"><font style="color:darkred"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + this.analysisResult + '</font></div>';
     $('.analysis-spinner').hide();
     $('#analysis-results-panel-content').html(resultsHtml);
   }
 
   // Add unique error to errors list
   addUniqueErrorToErrorsList(error: String, ids: String[]) {
-    let errors = this.analysisErrors;
-    let sameErrorMsgs = errors.filter(function (obj) {
+    const errors = this.analysisErrors;
+    const sameErrorMsgs = errors.filter(function (obj) {
       return obj.error == error && obj.object.toString() === ids.toString();
     });
     if (sameErrorMsgs.length === 0) {
@@ -414,15 +429,15 @@ export class AnalysisHandler {
   // Highlight objects with stereotype errors by ids
   highlightObjectWithErrorByIds(generalIds: String[]) {
     this.removeErrorHiglights();
-    for (let id of generalIds) {
+    for (const id of generalIds) {
       this.canvas.addMarker(id, 'highlight-general-error');
     }
   }
 
   // Remove error highlights
   removeErrorHiglights() {
-    $('.error-list-element').css("font-weight", "");
-    for (let taskHandler of this.getAllModelTaskHandlers()) {
+    $('.error-list-element').css('font-weight', '');
+    for (const taskHandler of this.getAllModelTaskHandlers()) {
       this.canvas.removeMarker(taskHandler.task.id, 'highlight-general-error');
     }
   }

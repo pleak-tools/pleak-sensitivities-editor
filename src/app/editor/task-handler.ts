@@ -20,6 +20,7 @@ export class TaskHandler {
     this.overlays = this.viewer.get('overlays');
 
     this.elementsHandler = elementsHandler;
+
     this.task = task;
 
     this.init();
@@ -42,7 +43,13 @@ export class TaskHandler {
   }
 
   getTaskInputQuery() {
+
+    if (this.task.sqlScript) {
+      return this.task.sqlScript;
+    }
+
     let query = "";
+
     if (this.task.sqlTaskInfo != null) {
       let savedData = JSON.parse(this.task.sqlTaskInfo);
       query = savedData.input1;
@@ -106,14 +113,9 @@ export class TaskHandler {
     }
     this.taskOptionsPanelContainer.find('.task-name').text(taskName);
 
-    let savedData;
-    let input1 = "";
-    let schema = "";
-    if (this.task.sqlTaskInfo != null) {
-      savedData = JSON.parse(this.task.sqlTaskInfo);
-      input1 = savedData.input1;
-      schema = savedData.schema;
-    }
+    let input1 = this.getTaskInputQuery();
+    let schema = this.getTaskSchema();
+
     this.taskOptionsPanelContainer.find('#task-schema').val(schema);
     this.taskOptionsPanelContainer.find('#task-query').val(input1);
 
@@ -121,7 +123,8 @@ export class TaskHandler {
       this.taskOptionsPanelContainer.find('.panel-footer').hide();
     }
 
-    $('.CodeMirror').remove();
+    $('.task-options-panel, .data-object-options-panel').find('.CodeMirror').remove();
+
     schemaCodeMirror = CodeMirror.fromTextArea(document.getElementById("task-schema"), {
       //mode: "text/x-sql, text/x-mysql, text/x-mariadb, text/x-cassandra, text/x-plsql, text/x-mssql, text/x-hive, text/x-pgsql, text/x-gql, text/x-gpsql, text/x-esper",
       mode: "text/x-mysql",
@@ -147,19 +150,15 @@ export class TaskHandler {
     this.initTaskOptionsButtons();
     let optionsPanel = this.taskOptionsPanelContainer;
     optionsPanel.detach();
-    $('#sidebar').prepend(optionsPanel);
+    $('#sidebar .divider').after(optionsPanel);
     $('#sidebar').scrollTop(0);
     this.taskOptionsPanelContainer.show();
 
   }
 
   getPreparedSchema() {
-    let savedData: any = "";
-    let schema = "";
-    if (this.task.sqlTaskInfo != null) {
-      savedData = JSON.parse(this.task.sqlTaskInfo);
-      schema = savedData.schema;
-    }
+    let schema = this.getTaskSchema();
+
     if (schema) {
       let result = this.elementsHandler.pg_parser.parse(schema);
       if (result.parse_tree.length) {
@@ -194,12 +193,8 @@ export class TaskHandler {
   }
 
   getPreparedQuery() {
-    let savedData: any = "";
-    let input = "";
-    if (this.task.sqlTaskInfo != null) {
-      savedData = JSON.parse(this.task.sqlTaskInfo);
-      input = savedData.input1;
-    }
+    let input = this.getTaskInputQuery();
+
     if (input) {
       if (input.indexOf("$$") !== -1) {
         let result = this.elementsHandler.pg_parser.parse(input);
@@ -266,6 +261,7 @@ export class TaskHandler {
 
   updateTaskOptions() {
     let infoObj = { input1: codeMirror1.getValue(), schema: schemaCodeMirror.getValue() };
+    this.task.sqlScript = codeMirror1.getValue();
     this.task.sqlTaskInfo = JSON.stringify(infoObj);
   }
 
