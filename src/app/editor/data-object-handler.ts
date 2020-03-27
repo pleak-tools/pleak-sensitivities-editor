@@ -212,7 +212,7 @@ export class DataObjectHandler {
     if ($('#input-options').has('#data-object-options-panel').length) {
       this.initDataObjectOptionsPanel();
     } else {
-      $('#input-options').prepend($('<div>').load(config.frontend.host + '/' + config.sql_sensitivities_editor.folder + '/src/app/editor/templates/data-object-options-panel.html', () => {
+      $('#input-options').prepend($('<div>').load(config.frontend.host + '/' + config.sensitivities_editor.folder + '/src/app/editor/templates/data-object-options-panel.html', () => {
         this.initDataObjectOptionsPanel();
       }));
     }

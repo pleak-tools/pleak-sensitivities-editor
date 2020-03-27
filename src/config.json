@@ -17,7 +17,7 @@
     "adapt": "/adapt-sql",
     "multi_runs": true
   },
-  "sql_sensitivities_editor": {
+  "sensitivities_editor": {
     "folder": "pleak-sensitivities-editor"
   },
   "guessing_advantage_editor": {
