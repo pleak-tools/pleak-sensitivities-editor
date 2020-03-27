@@ -1,28 +1,26 @@
 {
-    "backend": {
-        "host": "http://localhost:8080/pleak-backend"
-    },
-    "frontend": {
-        "host": "http://localhost:8000",
-        "port": 8000,
-        "folder": "pleak-frontend"
-    },
-    "sql_editor": {
-        "folder": "pleak-sql-editor"
-    },
-    "sql_analyser": {
-        "folder": "pleak-sql-analysis"
-    },
-    "pe_bpmn_editor": {
-        "folder": "pleak-pe-bpmn-editor"
-    },
-    "sql_derivative_sensitivity_editor": {
-        "folder": "pleak-sensitivities-editor"
-    },
-    "guessing_advantage_editor": {
-        "folder": "pleak-guessing-advantage-editor"
-    },
-    "combined_sensitivity_editor": {
-        "folder": "pleak-combined-sensitivity-editor"
-    }
+  "backend": {
+    "host": "http://localhost:8080/pleak-backend"
+  },
+  "frontend": {
+    "host": "http://localhost:8000",
+    "port": 8000,
+    "folder": "pleak-frontend"
+  },
+  "pe_bpmn_editor": {
+    "folder": "pleak-pe-bpmn-editor"
+  },
+  "leakswhen": {
+    "host": "https://pleak.io/leaks-when",
+    "report": "/upload",
+    "compute": "/compute",
+    "adapt": "/adapt-sql",
+    "multi_runs": true
+  },
+  "sql_sensitivities_editor": {
+    "folder": "pleak-sensitivities-editor"
+  },
+  "guessing_advantage_editor": {
+    "folder": "pleak-guessing-advantage-editor"
+  }
 }
