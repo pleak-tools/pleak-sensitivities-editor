@@ -132,6 +132,7 @@ export class AnalysisHandler {
       e.stopPropagation();
       this.removeErrorHiglights();
       $('#analysis-panels').hide();
+      this.editor.analyserMode = null;
     });
     $(document).find('#estimated-noise-input').on('input', (e) => {
       let percent = Math.round($('#estimated-noise-input').val() * 100);
