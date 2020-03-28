@@ -85,7 +85,7 @@ const analyzeProcessingNode = (nodeId: string, eventBus: any, dataDefStatements:
         $('#messageModal').find('.modal-body').html(analysisHtml);
         $('#messageModal').modal('show');
 
-        http.post(config.backend.host + '/rest/sql-privacy/analyse', { schema: obj_schema, query: obj_query }, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
+        http.post(config.backend.host + '/rest/sensitivities/global-sensitivity-analysis', { schema: obj_schema, query: obj_query }, AuthService.loadRequestOptions({observe: 'response'})).subscribe(
             (success: HttpResponse<any>) => {
             if (success.status === 200) {
               const res = success.body;

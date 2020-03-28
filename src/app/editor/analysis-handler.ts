@@ -232,16 +232,16 @@ export class AnalysisHandler {
   runAnalysisREST(postData: any) {
     let analyzer = '';
     if (this.analysisType === 'CS') {
-      analyzer = 'analyze-combined-sensitivity';
+      analyzer = 'combined-sensitivity-analysis';
     }
 
     if (this.analysisType === 'DS') {
       delete postData.distanceG;
-      analyzer = 'analyze-derivative-sensitivity';
+      analyzer = 'derivative-sensitivity-analysis';
     }
 
 
-    this.editor.http.post(config.backend.host + '/rest/sql-privacy/' + analyzer, postData, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
+    this.editor.http.post(config.backend.host + '/rest/sensitivities/' + analyzer, postData, AuthService.loadRequestOptions({ observe: 'response' })).subscribe(
       success => {
         this.formatAnalysisResults(success);
       },
