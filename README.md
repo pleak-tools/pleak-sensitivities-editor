@@ -1,13 +1,21 @@
-# Pleak SQL Derivative Sensitivity Editor
+# Pleak sensitivities editor
 
-This project is the front-end part of the [SQL derivative sensitivity analysis tool for pleak.io](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach) that is a part of the [SQL analysis tool for pleak.io](https://github.com/pleak-tools/pleak-sql-analysis).
+This project is the front-end part of the [SQL derivative sensitivity and SQL combined sensitivity analysis tools](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach) and [SQL global sensitivity analysis tool](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/globalsensitivity-cabal) that are SQL analyzers in [SQL analysis tools](https://github.com/pleak-tools/pleak-sql-analysis).
 
 ## Prerequisites
 
-You need to locate [pleak-backend](https://github.com/pleak-tools/pleak-backend), [pleak-frontend](https://github.com/pleak-tools/pleak-frontend) and [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) directories all in the same directory and specify their names in the config.json file.
+You need to locate pleak-sensitivities-editor, [pleak-backend](https://github.com/pleak-tools/pleak-backend), [pleak-frontend](https://github.com/pleak-tools/pleak-frontend) and [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) directories all in the same directory and specify their names in the config.json file.
 Read more from sub-repositories how to build each module.
 
-To use all functionalities of the SQL derivative sensitivity editor, clone the [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) tool and to make the analyzer available for the editor, follow the instructions in the [SQL derivative sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach).
+To use all functionalities of the Sensitivities editor, clone the [pleak-sql-analysis](https://github.com/pleak-tools/pleak-sql-analysis) repository and to make all the analyzers available for the editor, install:
+
+1) SQL derivative sensitivity analyzer (also builds SQL combined sensitivity analyzer), instructions in [SQL derivative sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/banach)
+
+2) SQL local sensitivity analyzer, instructions in [SQL local sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/localsensitivity-cabal)
+
+3) SQL global sensitivity analyzer, instructions in [SQL global sensitivity analysis tool repository](https://github.com/pleak-tools/pleak-sql-analysis/tree/master/globalsensitivity-cabal).
+
+SQL combined sensitivity analyzer uses both - SQL global sensitivity analyzer and SQL local sensitivity analyzer.
 
 ## Build
 
@@ -19,7 +27,7 @@ Execute `npm run build` to build the project. The build artifacts will be stored
 
 ## Using
 
-You can use the editor for each model from the Action menu next to the model on Files page (of frontend) or from the URL: http://localhost:8000/sql-derivative-sensitivity-editor/id (id of the model).
+You can use the editor for each model from the Action menu next to the model on Files page (of frontend) or from the URL: http://localhost:8000/sensitivities-editor/id (id of the model).
 
 ## License
 
