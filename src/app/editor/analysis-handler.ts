@@ -95,6 +95,10 @@ export class AnalysisHandler {
   }
 
   initAnalysisPanels() {
+    let analysisSettingsPanel = $('.ds-cs-analysis-panels-container');
+    analysisSettingsPanel.detach();
+    $('.analysis-panels-container').prepend(analysisSettingsPanel);
+
     $('#analysis-panel').off('click', '#run-ds-analysis, #run-cs-analysis');
     $('#sidebar').scrollTop(0);
     $('#analysis-panels').show();
@@ -103,14 +107,14 @@ export class AnalysisHandler {
       e.stopPropagation();
 
       if (e.target.id === 'run-ds-analysis') {
-        if(this.analysisType !== 'DS')
+        if (this.analysisType !== 'DS')
           this.setChangesInModelStatus(true);
         this.analysisType = 'DS';
       }
 
 
       if (e.target.id === 'run-cs-analysis') {
-        if(this.analysisType !== 'CS')
+        if (this.analysisType !== 'CS')
           this.setChangesInModelStatus(true);
         this.analysisType = 'CS';
       }

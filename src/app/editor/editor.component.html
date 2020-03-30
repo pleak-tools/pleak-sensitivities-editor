@@ -7,7 +7,8 @@
       <div class="col-xs-8 buttons-container">
         <ul class="buttons">
           <li>
-            <a id="change-editor" title="Change analyzer" data-toggle="modal" data-target="#changeAnalyzerModal" class="active">
+            <a id="change-editor" title="Change analyzer" data-toggle="modal" data-target="#changeAnalyzerModal"
+              class="active">
               <span class="glyphicon glyphicon-blackboard"></span> Change editor
             </a>
           </li>
@@ -72,144 +73,163 @@
 <div id="canvas">
 </div>
 <div id="sidebar">
-  <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'combined'" [class.active]="analyserMode === 'combined'" class="btn btn-default" (click)="setCombinedAnalyser()" style="margin-right:5px">CS/DS Analysis</button>
+  <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'combined'"
+    [class.active]="analyserMode === 'combined'" class="btn btn-default" (click)="setDSCSAnalyserActive()"
+    style="margin-right:5px">CS/DS Analysis</button>
 
-  <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'global'" [class.active]="analyserMode === 'global'" class="btn btn-default" (click)="analyserMode = 'global'">Global sensitivity analysis</button>
+  <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'global'"
+    [class.active]="analyserMode === 'global'" class="btn btn-default" (click)="setGSAnalyserActive()">Global
+    sensitivity analysis</button>
 
   <hr class="divider">
   <div style="display:block;text-align:right">
-    <button *ngIf="analyserMode === 'global'" id="run-global-analysis" type="button" class="btn btn-success">Run global sensitivity analysis</button>
+    <button *ngIf="analyserMode === 'global'" id="run-global-analysis" type="button" class="btn btn-success"
+      style="margin-bottom:5px">Run global
+      sensitivity analysis</button>
   </div>
 
-  <div class="gs-analysis-spinner" style="display:none">
-    <div class="double-bounce1-2"></div>
-    <div class="double-bounce2-2"></div>
-  </div>
+  <div class="analysis-panels-container">
 
-  <div *ngIf="analyserMode === 'combined'" id="analysis-panels" style="margin-bottom:10px;">
-    <div id="analysis-panel" style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
-      <button class="btn btn-default pull-right" type="button" id="analysis-settings-hide-button">X</button>
-      <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Analysis settings</h2>
-      <div class="row" style="text-align:right">
-        <div class="col-md-6">
-          <div class="form-group" id="epsilon-input-form-group">
-            <label class="text-16" for="epsilon-input">Privacy level &epsilon;</label>
-            <br/>0 &lt; &epsilon; &le; 10
-            <br/>smaller &epsilon; gives more privacy
+    <div class="ds-cs-analysis-panels-container">
+      <div *ngIf="analyserMode === 'combined'" id="analysis-panels" style="margin-top:10px;">
+        <div id="analysis-panel"
+          style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
+          <button class="btn btn-default pull-right" type="button" id="analysis-settings-hide-button">X</button>
+          <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Analysis settings</h2>
+          <div class="row" style="text-align:right">
+            <div class="col-md-6">
+              <div class="form-group" id="epsilon-input-form-group">
+                <label class="text-16" for="epsilon-input">Privacy level &epsilon;</label>
+                <br />0 &lt; &epsilon; &le; 10
+                <br />smaller &epsilon; gives more privacy
+              </div>
+            </div>
+            <div class="col-md-6">
+              <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1" />
+            </div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1"/>
-        </div>
-      </div>
-      <hr>
-      <div class="row" style="text-align: right">
-        <div class="col-md-6">
-          <div class="form-group" id="beta-input-form-group">
-            <label class="text-16" for="beta-input">Smoothness level &beta;</label>
-            <br/>0 &lt; &beta; &lt; &epsilon;/5
-            <br/>smaller &beta; gives less noise
+          <hr>
+          <div class="row" style="text-align: right">
+            <div class="col-md-6">
+              <div class="form-group" id="beta-input-form-group">
+                <label class="text-16" for="beta-input">Smoothness level &beta;</label>
+                <br />0 &lt; &beta; &lt; &epsilon;/5
+                <br />smaller &beta; gives less noise
+              </div>
+            </div>
+            <div class="col-md-6 text-left">
+              <input class="beta-toggle" type="checkbox" checked data-toggle="toggle">
+              <input class="form-control beta-input" type="number" id="beta-input" value="0.1" step="0.1"
+                style="margin-top:10px" />
+            </div>
           </div>
-        </div>
-        <div class="col-md-6 text-left">
-          <input class="beta-toggle" type="checkbox" checked data-toggle="toggle">
-          <input class="form-control beta-input" type="number" id="beta-input" value="0.1" step="0.1" style="margin-top:10px"/>
-        </div>
-      </div>
-      <hr>
-      <div class="row">
-        <div class="col-md-6 text-right">
-          <div class="form-group" id="estimated-noise-input-form-group">
-            <label class="text-16" for="estimated-noise-input">Confidence level of estimated noise</label>
+          <hr>
+          <div class="row">
+            <div class="col-md-6 text-right">
+              <div class="form-group" id="estimated-noise-input-form-group">
+                <label class="text-16" for="estimated-noise-input">Confidence level of estimated noise</label>
+              </div>
+            </div>
+            <div class="col-md-6 text-left">
+              <span id="estimated-noise-label">90</span>%
+            </div>
           </div>
-        </div>
-        <div class="col-md-6 text-left">
-          <span id="estimated-noise-label">90</span>%
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-          <input type="range" id="estimated-noise-input" value="0.9" min="0.0" max="1.0"
-                 step="0.01">
-        </div>
-      </div>
-      <hr>
+          <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+              <input type="range" id="estimated-noise-input" value="0.9" min="0.0" max="1.0" step="0.01">
+            </div>
+          </div>
+          <hr>
 
-      <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-          <span id="enable-advanced-settings" class="clickable" >Enable advanced settings</span>
-          <span id="disable-advanced-settings" class="clickable" style="display: none;">Disable advanced settings</span>
-        </div>
-      </div>
-      <hr>
-      <div id="advanced-settings" style="opacity: 0.4;">
-        <div class="row">
-          <div class="col-md-6 text-right">
-            <label class="text-16" for="sigmoid-smoothness-input">Sigmoid smoothness</label>
+          <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+              <span id="enable-advanced-settings" class="clickable">Enable advanced settings</span>
+              <span id="disable-advanced-settings" class="clickable" style="display: none;">Disable advanced
+                settings</span>
+            </div>
           </div>
-          <div class="col-md-6 text-left">
-            <input class="form-control " type="number" name="" id="sigmoid-smoothness-input" value="0.01" step="0.01" min="0" disabled="disabled">
-          </div>
-        </div>
-        <hr>
-        <div class="row">
-          <div class="col-md-6 text-right">
-            <label class="text-16" for="sigmoid-precision-input">Sigmoid precision</label>
-          </div>
-          <div class="col-md-6 text-left">
-            <input class="form-control " type="number" name="" id="sigmoid-precision-input" value="5" step="0.1" min="0" disabled="disabled">
-          </div>
-        </div>
+          <hr>
+          <div id="advanced-settings" style="opacity: 0.4;">
+            <div class="row">
+              <div class="col-md-6 text-right">
+                <label class="text-16" for="sigmoid-smoothness-input">Sigmoid smoothness</label>
+              </div>
+              <div class="col-md-6 text-left">
+                <input class="form-control " type="number" name="" id="sigmoid-smoothness-input" value="0.01"
+                  step="0.01" min="0" disabled="disabled">
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-md-6 text-right">
+                <label class="text-16" for="sigmoid-precision-input">Sigmoid precision</label>
+              </div>
+              <div class="col-md-6 text-left">
+                <input class="form-control " type="number" name="" id="sigmoid-precision-input" value="5" step="0.1"
+                  min="0" disabled="disabled">
+              </div>
+            </div>
 
-        <hr>
-        <div class="row">
-          <div class="col-md-6 text-right">
-            <label class="text-16" for="datestyle-input">PSQL datestyle</label>
+            <hr>
+            <div class="row">
+              <div class="col-md-6 text-right">
+                <label class="text-16" for="datestyle-input">PSQL datestyle</label>
+              </div>
+              <div class="col-md-6 text-left">
+                <input class="form-control" type="text" id="datestyle-input" value="European" disabled="disabled">
+              </div>
+            </div>
+            <hr>
           </div>
-          <div class="col-md-6 text-left">
-            <input class="form-control" type="text" id="datestyle-input" value="European" disabled="disabled">
+          <div class="row">
+            <div class="col-md-12 text-left">
+              <button id="attacker-settings-button" type="button" class="btn btn-default" style="margin-top:10px">Table
+                Constraints</button>
+              <br>
+              <button id="run-ds-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run derivative
+                sensitivity analysis</button>
+              <br>
+              <button id="run-cs-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run combined
+                sensitivity analysis</button>
+            </div>
           </div>
         </div>
-        <hr>
+        <div id="analysis-results-panel"
+          style="background-color:#fff; border-radius:4px; display:none; padding:10px; border-top-right-radius:0px; border-top-left-radius:0px">
+          <div>
+            <h2 style="margin-top: 10px; margin-bottom:20px; color:deepskyblue;">Analysis results</h2>
+          </div>
+          <div class="analysis-spinner" style="display:none">
+            <div class="double-bounce1-2"></div>
+            <div class="double-bounce2-2"></div>
+          </div>
+          <div id="analysis-results-panel-content">
+          </div>
+        </div>
       </div>
-      <div class="row">
-        <div class="col-md-12 text-left">
-          <button id="attacker-settings-button" type="button" class="btn btn-default" style="margin-top:10px">Table Constraints</button>
-          <br>
-          <button id="run-ds-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run derivative sensitivity analysis</button>
-          <br>
-          <button id="run-cs-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run combined sensitivity analysis</button>
+      <div id="attacker-settings-panel" style="display:none;margin-top:10px">
+        <div
+          style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
+          <button class="btn btn-default pull-right" type="button" id="attacker-settings-hide-button">X</button>
+          <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Table constraints</h2>
+          <div class="form-group" style="text-align: left; overflow-x: auto">
+            <textarea class="form-control code" id="attacker-prior-knowledge" style="display: none;"></textarea>
+          </div>
+          <div class="text-right">
+            <button class="btn btn-success" type="button" id="attacker-settings-save-button">Save</button>
+          </div>
         </div>
       </div>
     </div>
-    <div id="analysis-results-panel" style="background-color:#fff; border-radius:4px; display:none; padding:10px; border-top-right-radius:0px; border-top-left-radius:0px">
-      <div>
-        <h2 style="margin-top: 10px; margin-bottom:20px; color:deepskyblue;">Analysis results</h2>
-      </div>
-      <div class="analysis-spinner" style="display:none">
+    <br>
+    <div class="gs-analysis-results-container" style="margin-top:10px">
+      <div class="gs-analysis-spinner" style="display:none">
         <div class="double-bounce1-2"></div>
         <div class="double-bounce2-2"></div>
       </div>
-      <div id="analysis-results-panel-content">
-      </div>
+      <sidebar [canEdit]="canEdit()"></sidebar>
     </div>
-  </div>
 
-  <div id="attacker-settings-panel" style="margin-bottom:20px; display:none;">
-    <div style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
-      <button class="btn btn-default pull-right" type="button" id="attacker-settings-hide-button">X</button>
-      <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Table constraints</h2>
-      <div class="form-group" style="text-align: left; overflow-x: auto">
-        <textarea class="form-control code" id="attacker-prior-knowledge" style="display: none;"></textarea>
-      </div>
-      <div class="text-right">
-        <button class="btn btn-success" type="button" id="attacker-settings-save-button">Save</button>
-      </div>
-    </div>
-  </div>
-  <br>
-  <sidebar [canEdit]="canEdit()"></sidebar>
-  <div id="input-options">
   </div>
   <div id="resize-buttons-container">
     <span id="resize-buttons-label">Sidebar width:</span>
@@ -250,7 +270,8 @@
           <br>
           <ul class="buttons">
             <li>
-              <a class="active" href="/guessing-advantage-editor/{{viewerType == 'public' ? 'viewer/' : ''}}{{modelId}}">
+              <a class="active"
+                href="/guessing-advantage-editor/{{viewerType == 'public' ? 'viewer/' : ''}}{{modelId}}">
                 <span class="glyphicon glyphicon-transfer"></span> Guessing Advantage editor
               </a>
             </li>

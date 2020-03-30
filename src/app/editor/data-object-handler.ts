@@ -6,7 +6,7 @@ declare let $: any;
 declare let jexcel: any;
 declare let CodeMirror: any;
 
-declare function require(name:string);
+declare function require(name: string);
 let config = require('../../config.json');
 
 let schemaCodeMirror;
@@ -154,10 +154,10 @@ export class DataObjectHandler {
     DBJexcel = this.dataObjectOptionsPanelContainer.find('#DBinputTable');
     DBJexcel.jexcel({
       data: inputDB,
-      minDimensions: [10,7],
+      minDimensions: [10, 7],
       editable: this.elementsHandler.canEdit,
-      onselection: function() {
-        setTimeout(function() {
+      onselection: function () {
+        setTimeout(function () {
           $("#jexcel_contextmenu a:last-child").hide();
         }, 1);
       }
@@ -165,7 +165,7 @@ export class DataObjectHandler {
 
     this.DBInputInitialValue = $('#DBinputTable').jexcel('getData', false);
 
-    setTimeout(function() {
+    setTimeout(function () {
       NRMCodeMirror.refresh();
       schemaCodeMirror.refresh();
     }, 10);
@@ -176,7 +176,7 @@ export class DataObjectHandler {
     this.initDataObjectOptionsButtons();
     let optionsPanel = this.dataObjectOptionsPanelContainer;
     optionsPanel.detach();
-    $('#sidebar .divider').after(optionsPanel);
+    $('.analysis-panels-container').prepend(optionsPanel);
     $('#sidebar').scrollTop(0);
     this.dataObjectOptionsPanelContainer.show();
 
@@ -204,15 +204,15 @@ export class DataObjectHandler {
       DBOutput = DBOutput.trim();
       let name = this.dataObject.name.trim().replace(/ *\([^)]*\) */g, "").replace(/\s+/g, "_");
 
-      return {id: this.dataObject.id, name: name, nrm: NRMOutput, db: DBOutput, schema: schemaOutput};
+      return { id: this.dataObject.id, name: name, nrm: NRMOutput, db: DBOutput, schema: schemaOutput };
     }
   }
 
   loadDataObjectOptionsPanelTemplate() {
-    if ($('#input-options').has('#data-object-options-panel').length) {
+    if ($('#sidebar').has('#data-object-options-panel').length) {
       this.initDataObjectOptionsPanel();
     } else {
-      $('#input-options').prepend($('<div>').load(config.frontend.host + '/' + config.sensitivities_editor.folder + '/src/app/editor/templates/data-object-options-panel.html', () => {
+      $('.analysis-panels-container').prepend($('<div>').load(config.frontend.host + '/' + config.sensitivities_editor.folder + '/src/app/editor/templates/data-object-options-panel.html', () => {
         this.initDataObjectOptionsPanel();
       }));
     }
@@ -249,7 +249,7 @@ export class DataObjectHandler {
         cleanedInputDB.push(cleanedRow);
       }
     }
-    let object = {inputNRM: inputNRM, inputDB: cleanedInputDB, inputSchema: inputSchema};
+    let object = { inputNRM: inputNRM, inputDB: cleanedInputDB, inputSchema: inputSchema };
     this.dataObject.sqlScript = inputSchema;
     this.dataObject.sqlDataObjectInfo = JSON.stringify(object);
   }

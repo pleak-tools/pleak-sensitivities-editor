@@ -150,7 +150,7 @@ export class TaskHandler {
     this.initTaskOptionsButtons();
     let optionsPanel = this.taskOptionsPanelContainer;
     optionsPanel.detach();
-    $('#sidebar .divider').after(optionsPanel);
+    $('.analysis-panels-container').prepend(optionsPanel);
     $('#sidebar').scrollTop(0);
     this.taskOptionsPanelContainer.show();
 
@@ -235,10 +235,10 @@ export class TaskHandler {
   }
 
   loadTaskOptionsPanelTemplate() {
-    if ($('#input-options').has('#task-options-panel').length) {
+    if ($('#sidebar').has('#task-options-panel').length) {
       this.initTaskOptionsPanel();
     } else {
-      $('#input-options').prepend($('<div>').load(config.frontend.host + '/' + config.sensitivities_editor.folder + '/src/app/editor/templates/task-options-panel.html', () => {
+      $('.analysis-panels-container').prepend($('<div>').load(config.frontend.host + '/' + config.sensitivities_editor.folder + '/src/app/editor/templates/task-options-panel.html', () => {
         this.initTaskOptionsPanel();
       }));
     }

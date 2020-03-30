@@ -170,12 +170,16 @@ export class EditorComponent implements OnInit {
     return false;
   }
 
-  setCombinedAnalyser() {
+  setDSCSAnalyserActive() {
     this.analyserMode = 'combined';
 
     window.setTimeout(() => { this.elementsHandler.analysisHandler.initAnalysisPanels() }, 500);
 
     this.sidebarComponent.clear();
+  }
+
+  setGSAnalyserActive() {
+    this.analyserMode = 'global';
   }
 
   addEventHandlers(elementsHandler) {
@@ -370,6 +374,9 @@ export class EditorComponent implements OnInit {
   }
 
   analyse() {
+    let GSResultsPanel = $('.gs-analysis-results-container');
+    GSResultsPanel.detach();
+    $('.analysis-panels-container').prepend(GSResultsPanel);
     $('.gs-analysis-spinner').fadeIn();
     this.viewer.saveXML({ format: true }, (err1: any, xml: string) => {
       this.viewer.get('moddle').fromXML(xml, (err2: any, definitions: any) => {
