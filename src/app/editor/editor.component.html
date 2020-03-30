@@ -2,7 +2,7 @@
   <div>
     <div class="row">
       <div class="col-xs-4">
-        <h4 class="editor-title">Pleak Sensitivities editor</h4>
+        <h4 class="editor-title">Pleak sensitivities editor</h4>
       </div>
       <div class="col-xs-8 buttons-container">
         <ul class="buttons">
@@ -77,9 +77,16 @@
   <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'global'" [class.active]="analyserMode === 'global'" class="btn btn-default" (click)="analyserMode = 'global'">Global sensitivity analysis</button>
 
   <hr class="divider">
-  <button *ngIf="analyserMode === 'global'"  id="run-global-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run global sensitivity analysis</button>
+  <div style="display:block;text-align:right">
+    <button *ngIf="analyserMode === 'global'" id="run-global-analysis" type="button" class="btn btn-success">Run global sensitivity analysis</button>
+  </div>
 
-  <div *ngIf="analyserMode === 'combined'" id="analysis-panels" style="margin-bottom:20px;">
+  <div class="gs-analysis-spinner" style="display:none">
+    <div class="double-bounce1-2"></div>
+    <div class="double-bounce2-2"></div>
+  </div>
+
+  <div *ngIf="analyserMode === 'combined'" id="analysis-panels" style="margin-bottom:10px;">
     <div id="analysis-panel" style="background-color:#fff; border-radius:4px; padding:10px; border-bottom-right-radius:0px; border-bottom-left-radius:0px">
       <button class="btn btn-default pull-right" type="button" id="analysis-settings-hide-button">X</button>
       <h2 style="margin-top: 10px; margin-bottom:20px; margin-left:35px; color:deepskyblue;">Analysis settings</h2>
@@ -200,7 +207,7 @@
       </div>
     </div>
   </div>
-  <br><br>
+  <br>
   <sidebar [canEdit]="canEdit()"></sidebar>
   <div id="input-options">
   </div>

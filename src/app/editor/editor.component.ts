@@ -5,7 +5,7 @@ import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
 
 import { ElementsHandler } from './elements-handler';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Analyser } from '../analyser/SQLDFlowAnalizer';
+import { GlobalSensitivityAnalyser } from '../global-sensitivity-analysis/SQLDFlowAnalizer';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
 declare let $: any;
@@ -18,7 +18,7 @@ const pg_parser = require('exports-loader?Module!pgparser/pg_query.js');
 const config = require('../../config.json');
 
 @Component({
-  selector: 'app-sql-derivative-sensitivity-editor',
+  selector: 'app-sensitivities-editor',
   templateUrl: 'editor.component.html',
   styleUrls: ['editor.component.less']
 })
@@ -100,7 +100,7 @@ export class EditorComponent implements OnInit {
           self.openDiagram(self.file.content);
         }
         self.lastContent = self.file.content;
-        document.title = 'Pleak SQL derivative sensitivity editor - ' + self.file.title;
+        document.title = 'Pleak sensitivities editor - ' + self.file.title;
         $('#fileName').text(this.file.title);
         self.lastModified = new Date().getTime();
       },
@@ -121,7 +121,7 @@ export class EditorComponent implements OnInit {
         this.file.user = response.user;
         this.file.md5Hash = response.md5Hash;
       },
-      () => {},
+      () => { },
       () => {
         self.openDiagram(self.file.content);
       }
@@ -163,7 +163,7 @@ export class EditorComponent implements OnInit {
     }
     for (let pIx = 0; pIx < file.permissions.length; pIx++) {
       if (file.permissions[pIx].action.title === 'edit' &&
-      this.authService.user ? file.permissions[pIx].user.email === this.authService.user.email : false) {
+        this.authService.user ? file.permissions[pIx].user.email === this.authService.user.email : false) {
         return true;
       }
     }
@@ -173,7 +173,7 @@ export class EditorComponent implements OnInit {
   setCombinedAnalyser() {
     this.analyserMode = 'combined';
 
-    window.setTimeout(() => {this.elementsHandler.analysisHandler.initAnalysisPanels()}, 500);
+    window.setTimeout(() => { this.elementsHandler.analysisHandler.initAnalysisPanels() }, 500);
 
     this.sidebarComponent.clear();
   }
@@ -370,8 +370,7 @@ export class EditorComponent implements OnInit {
   }
 
   analyse() {
-    $('#messageModal').find('.modal-title').text('Analysis in progress...');
-    // this.selectedDataObjects = [];
+    $('.gs-analysis-spinner').fadeIn();
     this.viewer.saveXML({ format: true }, (err1: any, xml: string) => {
       this.viewer.get('moddle').fromXML(xml, (err2: any, definitions: any) => {
         if (typeof definitions !== 'undefined') {
@@ -403,7 +402,7 @@ export class EditorComponent implements OnInit {
     const eventBus = this.viewer.get('eventBus');
     const overlays = this.viewer.get('overlays');
 
-    Analyser.analizeSQLDFlow(element, registry, canvas, overlays, eventBus, this.http);
+    GlobalSensitivityAnalyser.analizeSQLDFlow(element, registry, canvas, overlays, eventBus, this.http);
   }
 
   ngOnInit() {
@@ -426,11 +425,11 @@ export class EditorComponent implements OnInit {
       }
     });
 
-    Analyser.analysisCompleted.subscribe(result => {
+    GlobalSensitivityAnalyser.analysisCompleted.subscribe(result => {
       this.sidebarComponent.emitTaskResult(result);
     });
 
-    Analyser.analysisError.subscribe(errors => {
+    GlobalSensitivityAnalyser.analysisError.subscribe(errors => {
       this.sidebarComponent.displayErrors(errors);
     });
   }

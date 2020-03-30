@@ -2,7 +2,7 @@ declare var $: any;
 
 const is = (element: any, type: any) => element.$instanceOf(type);
 
-let transitiveClosure = (adjList: {[src: string]: Array<string>}, sources: Array<string>): {[src: string]: Array<string>} => {
+let transitiveClosure = (adjList: { [src: string]: Array<string> }, sources: Array<string>): { [src: string]: Array<string> } => {
 
   var transClosure = {};
 
@@ -40,7 +40,7 @@ let transitiveClosure = (adjList: {[src: string]: Array<string>}, sources: Array
 
 }
 
-export let topologicalSorting = (adjList: {[src: string]: Array<string>}, invAdjList: {[src: string]: Array<string>}, sources: Array<string>): Array<string> => {
+export let topologicalSorting = (adjList: { [src: string]: Array<string> }, invAdjList: { [src: string]: Array<string> }, sources: Array<string>): Array<string> => {
 
   var order = new Array();
   var sourcesp = sources.slice(0);
@@ -80,14 +80,14 @@ export let topologicalSorting = (adjList: {[src: string]: Array<string>}, invAdj
 
 }
 
-export let dataFlowAnalysis = (process: any, registry: any): any => {
+export let dataFlowAnalysis = (process: any): any => {
 
   var sources: Array<string>;
-  var dataFlowEdges: {[src: string]: Array<string>} = {};
-  var invDataFlowEdges: {[src: string]: Array<string>} = {};
+  var dataFlowEdges: { [src: string]: Array<string> } = {};
+  var invDataFlowEdges: { [src: string]: Array<string> } = {};
   var processingNodes: Array<string> = [];
 
-  for (let node of process.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
+  for (let node of process.flowElements.filter((e: any) => is(e, "bpmn:Task"))) {
 
     if (node.dataInputAssociations && node.dataInputAssociations.length > 0 && node.dataOutputAssociations && node.dataOutputAssociations.length > 0) {
 
@@ -122,7 +122,7 @@ export let dataFlowAnalysis = (process: any, registry: any): any => {
 
   }
 
-  sources = Object.keys(dataFlowEdges).filter( (e, i, a) => !invDataFlowEdges[e] && a.indexOf(e) >= 0 );
+  sources = Object.keys(dataFlowEdges).filter((e, i, a) => !invDataFlowEdges[e] && a.indexOf(e) >= 0);
 
   return {
     sources: sources,
@@ -133,12 +133,13 @@ export let dataFlowAnalysis = (process: any, registry: any): any => {
 
 }
 
-export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any, any] => {
+export let computeSensitivitiesMatrix = (processs: any, registry: any): [any, any, any] => {
 
-  var info = dataFlowAnalysis(process, registry);
+  let process = processs.businessObject.$parent;
+  var info = dataFlowAnalysis(process);
   let [processingNodes, dataFlowEdges, invDataFlowEdges, sources] = [info.processingNodes, info.dataFlowEdges, info.invDataFlowEdges, info.sources];
 
-  let [Dinputs, tmp1, tmp2] = computeGraMSecMatrices(process, registry);
+  let [Dinputs] = computeGraMSecMatrices(process, registry);
 
   let Ds = [];
   let ls = [];
@@ -149,11 +150,11 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
     if (Dinputs.hasOwnProperty(input)) {
       for (var output in Dinputs[input]) {
         if (Dinputs[input].hasOwnProperty(output)) {
-          let sameElements = Ds.filter(function( obj ) {
+          let sameElements = Ds.filter(function (obj) {
             return obj.input == input && obj.output == output && obj.value == Dinputs[input][output];
           });
           if (sameElements.length == 0) {
-            Ds.push({input: input, output: output, value: Dinputs[input][output]});
+            Ds.push({ input: input, output: output, value: Dinputs[input][output] });
           }
         }
       }
@@ -166,12 +167,12 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
       let outp;
       if (source == source2) {
         // D[input,input] = 1
-        outp = {input: source, output: source, value: 1};
+        outp = { input: source, output: source, value: 1 };
       } else {
         // D[input1, input2] = 0 (if not specified differently)
-        outp = {input: source, output: source2, value: 0};
+        outp = { input: source, output: source2, value: 0 };
       }
-      let sameElements = Ds.filter(function( obj ) {
+      let sameElements = Ds.filter(function (obj) {
         return obj.input == source && obj.output == source2;
       });
       if (sameElements.length == 0) {
@@ -180,7 +181,7 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
     }
   }
 
-  for (let node of process.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
+  for (let node of process.flowElements.filter((e: any) => is(e, "bpmn:Task"))) {
 
     if (processingNodes.indexOf(node.id) >= 0 && node.sensitivityMatrix) {
 
@@ -192,7 +193,7 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
         if (object.hasOwnProperty(input)) {
           for (var output in object[input]) {
             if (object[input].hasOwnProperty(output)) {
-              ls.push({input: input, output: output, value: object[input][output]});
+              ls.push({ input: input, output: output, value: object[input][output] });
             }
           }
         }
@@ -204,10 +205,10 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
 
   // Add other sensitivities into Ds array (relations between inputs and outputs (those that are missing yet))
   for (let source of ls) {
-    for (let target of Object.keys(invDataFlowEdges).filter((e:any) => processingNodes.indexOf(e) < 0)) {
+    for (let target of Object.keys(invDataFlowEdges).filter((e: any) => processingNodes.indexOf(e) < 0)) {
       // D[input1, input2] = 0 (if not specified differently)
-      let outp = {input: source.input, output: target, value: 0};
-      let sameElements = Ds.filter(function( obj ) {
+      let outp = { input: source.input, output: target, value: 0 };
+      let sameElements = Ds.filter(function (obj) {
         return obj.input == source.input && obj.output == target;
       });
       if (sameElements.length == 0) {
@@ -219,23 +220,23 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
 
   // Calculate sensitivity values (sum of multiple multiplications) for the result matrix
   for (let source of sources) {
-    for (let target of Object.keys(invDataFlowEdges).filter((e:any) => processingNodes.indexOf(e) < 0)) {
+    for (let target of Object.keys(invDataFlowEdges).filter((e: any) => processingNodes.indexOf(e) < 0)) {
       let value = 0;
 
-      let targets = ls.filter(function( obj ) {
+      let targets = ls.filter(function (obj) {
         return obj.output == target;
       });
       if (targets.length > 0) {
         for (let tar of targets) {
 
           // First value of the multiplication
-          let values1 = Ds.filter(function( obj ) {
+          let values1 = Ds.filter(function (obj) {
             return obj.input == source && obj.output == tar.input;
           });
           let val1 = values1[0].value;
 
           // Second value of the multiplication
-          let values2 = ls.filter(function( obj ) {
+          let values2 = ls.filter(function (obj) {
             return obj.input == tar.input && obj.output == target;
           });
 
@@ -274,17 +275,17 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
       }
 
       // Add calculated value to the Ds array to calculate next sensitivities
-      let sameElements = Ds.filter(function( obj ) {
+      let sameElements = Ds.filter(function (obj) {
         return obj.input == source && obj.output == target;
       });
       if (sameElements.length == 0) {
-        Ds.push({input: source, output: target, value: value});
+        Ds.push({ input: source, output: target, value: value });
       } else {
         sameElements[0].value = value;
       }
 
       // Add calculated value to the result matrix
-      matrix.push({input: source, output: target, value: value});
+      matrix.push({ input: source, output: target, value: value });
 
     }
   }
@@ -293,7 +294,7 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
 
   // Format matrix for the result modal
   for (let input of sources) {
-    let targets = matrix.filter(function( obj ) {
+    let targets = matrix.filter(function (obj) {
       return obj.input == input;
     });
     if (targets.length > 0) {
@@ -305,17 +306,16 @@ export let computeSensitivitiesMatrix = (process: any, registry: any): [any, any
     }
   }
 
-  return [dc, sources, Object.keys(invDataFlowEdges).filter((e:any) => processingNodes.indexOf(e) < 0)];
+  return [dc, sources, Object.keys(invDataFlowEdges).filter((e: any) => processingNodes.indexOf(e) < 0)];
 
 }
 
-export let computeGraMSecMatrices = (process: any, registry: any): [any, any, any] => {
+export let computeGraMSecMatrices = (process: any, registry: any): [any] => {
 
-  // console.log("Analyzing", process);
-  var info = dataFlowAnalysis(process, registry);
+  var info = dataFlowAnalysis(process);
   let [processingNodes, dataFlowEdges, invDataFlowEdges, sources] = [info.processingNodes, info.dataFlowEdges, info.invDataFlowEdges, info.sources];
 
-  for (let node of process.flowElements.filter((e:any) => is(e, "bpmn:Task"))) {
+  for (let node of process.flowElements.filter((e: any) => is(e, "bpmn:Task"))) {
 
     if (processingNodes.indexOf(node.id) >= 0 && node.sensitivityMatrix) {
 
@@ -336,35 +336,21 @@ export let computeGraMSecMatrices = (process: any, registry: any): [any, any, an
 
     if (!is(node, "bpmn:DataObjectReference")) {
 
-      //console.log(`About to process: ${node.name}`);
       for (let source of sources) {
 
-        let nsource = registry.get(source).businessObject;
-
-        //console.log('--------------');
-        //console.log(`Source: ${nsource.name}`);
         if (transClosure[source].indexOf(p) < 0) continue;
 
-        //console.log(`Source: ${nsource.name}`);
-        //console.log('..');
         for (let pred of invDataFlowEdges[p]) {
-
-          let npred = registry.get(pred).businessObject;
 
           if (transClosure[source].indexOf(pred) < 0) continue;
 
-          //console.log(`Predecessor: ${npred.name}`);
           for (let succ of dataFlowEdges[p]) {
-
-            let nsucc = registry.get(succ).businessObject;
 
             if (transClosure[source].indexOf(succ) < 0) continue;
 
-            //console.log(`Successor: ${nsucc.name}`);
-
             if (node.nSensitivityMatrixJSON) {
 
-              let value =  node.nSensitivityMatrixJSON[pred][succ];
+              let value = node.nSensitivityMatrixJSON[pred][succ];
 
               if (source === pred) {
 
@@ -386,6 +372,6 @@ export let computeGraMSecMatrices = (process: any, registry: any): [any, any, an
 
   }
 
-  return [dc, sources, Object.keys(invDataFlowEdges).filter((e:any) => processingNodes.indexOf(e) < 0)];
+  return [dc];
 
 }
