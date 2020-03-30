@@ -7,7 +7,7 @@
       <div class="col-xs-8 buttons-container">
         <ul class="buttons">
           <li>
-            <a id="change-editor" title="Change analyzer" data-toggle="modal" data-target="#changeAnalyzerModal"
+            <a id="change-editor" title="Change editor" data-toggle="modal" data-target="#changeAnalyzerModal"
               class="active">
               <span class="glyphicon glyphicon-blackboard"></span> Change editor
             </a>
@@ -250,6 +250,25 @@
           <h4>Change editor</h4>
         </div>
         <div class="modal-body text-center">
+          <ng-container *ngIf="viewerType != 'public'">
+            <ul class="buttons">
+              <li>
+                <a class="active" href="/modeler/{{modelId}}">
+                  <span class="glyphicon glyphicon-transfer"></span> Modeler
+                </a>
+              </li>
+            </ul>
+            <br>
+            <br>
+            <ul class="buttons">
+              <li>
+                <a class="active" href="/composition-modeler/{{modelId}}">
+                  <span class="glyphicon glyphicon-transfer"></span> Composition modeler
+                </a>
+              </li>
+            </ul>
+            <hr>
+          </ng-container>
           <ul class="buttons">
             <li>
               <a>
