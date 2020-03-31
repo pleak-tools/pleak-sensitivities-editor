@@ -300,3 +300,5 @@
     </div>
   </div>
 </div>
+
+<app-script-modal [canEdit]=canEdit() (save)=saveScript($event) (script)=setScript($event) #scriptModal></app-script-modal>

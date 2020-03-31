@@ -246,17 +246,26 @@ export class TaskHandler {
 
   initTaskOptionsButtons() {
     this.terminateTaskOptionsButtons();
-    this.taskOptionsPanelContainer.one('click', '#task-options-save-button', (e) => {
+    this.taskOptionsPanelContainer.one('click', '#task-options-save-button', () => {
       this.saveTaskOptions();
     });
-    this.taskOptionsPanelContainer.on('click', '#task-options-hide-button', (e) => {
+    this.taskOptionsPanelContainer.on('click', '#task-options-hide-button', () => {
       this.checkForUnsavedTaskChangesBeforeTerminate();
+    });
+    this.taskOptionsPanelContainer.on('click', '#task-schema-fullscreen', () => {
+      this.elementsHandler.parent.openScriptModal(schemaCodeMirror.getValue(), (this.task.name ? this.task.name : "unnamed") + " - Edit output table schema", 'task1', this.task.id);
+    });
+    this.taskOptionsPanelContainer.on('click', '#task-query-fullscreen', () => {
+      this.elementsHandler.parent.openScriptModal(codeMirror1.getValue(), (this.task.name ? this.task.name : "unnamed") + " - Edit output table query", 'task2', this.task.id);
     });
   }
 
   terminateTaskOptionsButtons() {
     this.taskOptionsPanelContainer.off('click', '#task-options-save-button');
     this.taskOptionsPanelContainer.off('click', '#task-options-hide-button');
+    this.taskOptionsPanelContainer.off('click', '#task-schema-fullscreen');
+    this.taskOptionsPanelContainer.off('click', '#task-query-fullscreen');
+
   }
 
   updateTaskOptions() {
@@ -287,6 +296,18 @@ export class TaskHandler {
         this.updateModelContentVariable(xml);
       }
     );
+  }
+
+  setSchemaScriptValue(script: string): void {
+    if (script) {
+      schemaCodeMirror.setValue(script);
+    }
+  }
+
+  setQueryScriptValue(script: string): void {
+    if (script) {
+      codeMirror1.setValue(script);
+    }
   }
 
   // Highlight inputs and outputs of the task

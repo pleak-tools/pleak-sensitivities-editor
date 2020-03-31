@@ -1,0 +1,31 @@
+<!-- Script modal-->
+<div class="modal fade" id="scriptUpdateModal" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">
+          {{name}}
+        </h4>
+      </div>
+      <div class="modal-body">
+        <ng-container *ngIf=input>
+          <ngx-codemirror [ngModel]=input [options]="{
+            lineNumbers: true,
+            mode: 'text/x-mysql',
+            showCursorWhenSelecting: true,
+            lineWiseCopyCut: false,
+            readOnly: !canEdit
+          }" (ngModelChange)=inputChanged($event) #scriptCodeMirror>
+          </ngx-codemirror>
+        </ng-container>
+        <ng-container *ngIf="canEdit">
+          <br>
+          <button class="btn btn-success pull-right" type="button" (click)=saveInput()>Save</button>
+          <br>
+          <br>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

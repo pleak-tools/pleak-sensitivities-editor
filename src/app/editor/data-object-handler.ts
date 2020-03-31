@@ -220,17 +220,21 @@ export class DataObjectHandler {
 
   initDataObjectOptionsButtons() {
     this.terminateDataObjectOptionsButtons();
-    this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-save-button', (e) => {
+    this.dataObjectOptionsPanelContainer.one('click', '#data-object-options-save-button', () => {
       this.saveDataObjectOptions();
     });
-    this.dataObjectOptionsPanelContainer.on('click', '#data-object-options-hide-button', (e) => {
+    this.dataObjectOptionsPanelContainer.on('click', '#data-object-options-hide-button', () => {
       this.checkForUnsavedDataObjectChangesBeforeTerminate();
+    });
+    this.dataObjectOptionsPanelContainer.on('click', '#do-script-fullscreen', () => {
+      this.elementsHandler.parent.openScriptModal(schemaCodeMirror.getValue(), $('.data-object-name').text() + " - Edit table schema", 'do', this.dataObject.id);
     });
   }
 
   terminateDataObjectOptionsButtons() {
     this.dataObjectOptionsPanelContainer.off('click', '#data-object-options-save-button');
     this.dataObjectOptionsPanelContainer.off('click', '#data-object-options-hide-button');
+    this.dataObjectOptionsPanelContainer.off('click', '#do-script-fullscreen');
   }
 
   updateDataObjectOptions() {
@@ -283,6 +287,12 @@ export class DataObjectHandler {
         this.updateModelContentVariable(xml);
       }
     );
+  }
+
+  setSchemaInputValue(script: string): void {
+    if (script) {
+      schemaCodeMirror.setValue(script);
+    }
   }
 
   /** Wrappers to access elementsHandler functions*/

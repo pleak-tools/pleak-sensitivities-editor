@@ -11,13 +11,16 @@ import { AuthService } from './auth/auth.service';
 import { ToastrModule } from 'ngx-toastr';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { ScriptModalComponent } from './editor/script-modal/script-modal.component';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
 @NgModule({
   declarations: [
     AppComponent,
     EditorComponent,
     SidebarComponent,
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    ScriptModalComponent
   ],
   imports: [
     NoopAnimationsModule,
@@ -28,7 +31,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
       timeOut: 5000,
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
-    })
+    }),
+    CodemirrorModule
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

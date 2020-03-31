@@ -44,6 +44,7 @@ export class EditorComponent implements OnInit {
 
   @Input() authenticated: Boolean;
   @ViewChild(SidebarComponent, { static: true }) sidebarComponent: SidebarComponent;
+  @ViewChild('scriptModal', { static: false }) scriptModal: any;
 
   public loaded = false;
 
@@ -410,6 +411,47 @@ export class EditorComponent implements OnInit {
     const overlays = this.viewer.get('overlays');
 
     GlobalSensitivityAnalyser.analizeSQLDFlow(element, registry, canvas, overlays, eventBus, this.http);
+  }
+
+  openScriptModal(script: string, name: string, type: string, elementId: string): void {
+    this.scriptModal.openModal(JSON.stringify({ name: name, value: script, type: type, id: elementId }));
+  }
+
+  setScript(scriptObj: any): void {
+    let info = JSON.parse(scriptObj);
+    if (info) {
+      if (info.type == "task1") {
+        let taskHandler = this.elementsHandler.getTaskHandlerByTaskId(info.id);
+        if (taskHandler) {
+          taskHandler.setSchemaScriptValue(info.value);
+        }
+      } else if (info.type == "task2") {
+        let taskHandler = this.elementsHandler.getTaskHandlerByTaskId(info.id);
+        if (taskHandler) {
+          taskHandler.setQueryScriptValue(info.value);
+        }
+      } else if (info.type == "do") {
+        let doHandler = this.elementsHandler.getDataObjectHandlerByDataObjectId(info.id);
+        if (doHandler) {
+          doHandler.setSchemaInputValue(info.value);
+        }
+      }
+    }
+  }
+
+  saveScript(scriptObj: string): void {
+    let info = JSON.parse(scriptObj);
+    if (info.type == "task1" || info.type == "task2") {
+      let taskHandler = this.elementsHandler.getTaskHandlerByTaskId(info.id);
+      if (taskHandler) {
+        taskHandler.saveTaskOptions();
+      }
+    } else if (info.type == "do") {
+      let doHandler = this.elementsHandler.getDataObjectHandlerByDataObjectId(info.id);
+      if (doHandler) {
+        doHandler.saveDataObjectOptions();
+      }
+    }
   }
 
   ngOnInit() {
