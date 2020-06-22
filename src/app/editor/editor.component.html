@@ -258,15 +258,6 @@
                 </a>
               </li>
             </ul>
-            <br>
-            <br>
-            <ul class="buttons">
-              <li>
-                <a class="active" href="/composition-modeler/{{modelId}}">
-                  <span class="glyphicon glyphicon-transfer"></span> Composition modeler
-                </a>
-              </li>
-            </ul>
             <hr>
           </ng-container>
           <ul class="buttons">
@@ -295,10 +286,20 @@
               </a>
             </li>
           </ul>
+          <br>
+          <br>
+          <ul class="buttons">
+            <li>
+              <a class="active" href="/composition-modeler/{{modelId}}">
+                <span class="glyphicon glyphicon-transfer"></span> Composition modeler
+              </a>
+            </li>
+          </ul>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<app-script-modal [canEdit]=canEdit() (save)=saveScript($event) (script)=setScript($event) #scriptModal></app-script-modal>
+<app-script-modal [canEdit]=canEdit() (save)=saveScript($event) (script)=setScript($event) #scriptModal>
+</app-script-modal>
