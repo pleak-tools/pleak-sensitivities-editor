@@ -343,7 +343,8 @@ export const SqlBPMNModdle = {
     {
       name: "CompositionTask",
       extends: [
-        "bpmn:Task"
+        "bpmn:Task",
+        "bpmn:SubProcess"
       ],
       properties: [
         {
