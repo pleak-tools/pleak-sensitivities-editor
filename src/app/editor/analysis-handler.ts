@@ -43,6 +43,7 @@ export class AnalysisHandler {
     attackerSettings: '',
     distanceG: 1.0,
     errorUB: 0.9,
+    dpDelta: 0.0,
     sigmoidBeta: 0.01,
     sigmoidPrecision: 5.0,
     dateStyle: 'European'
@@ -59,6 +60,7 @@ export class AnalysisHandler {
     // No changes in model, so show previous analysis results
     if (!this.getChangesInModelStatus() &&
       Number.parseFloat(this.analysisInput.epsilon) == Number.parseFloat($('.epsilon-input').val()) &&
+      Number.parseFloat(this.analysisInput.dpDelta) == Number.parseFloat($('.dp-delta-input').val()) &&
       Number.parseFloat(this.analysisInput.beta) == Number.parseFloat($('.beta-input').val()) &&
       this.analysisInput.attackerSettings == this.elementsHandler.attackerSettingsHandler.getAttackerSettings() &&
       Number.parseFloat(this.analysisInput.errorUB) == Number.parseFloat($('#estimated-noise-input').val()) &&
@@ -80,6 +82,7 @@ export class AnalysisHandler {
       attackerSettings: '',
       distanceG: 1.0,
       errorUB: 0.9,
+      dpDelta: 0.0,
       sigmoidBeta: 0.01,
       sigmoidPrecision: 5.0,
       dateStyle: 'European'
@@ -129,6 +132,15 @@ export class AnalysisHandler {
         $('.beta-input').val(-1);
       } else {
         $('.beta-input').val(0.1);
+      }
+    });
+    $('.dp-delta-toggle').bootstrapToggle();
+    $('.dp-delta-toggle').change(() => {
+      $('.dp-delta-input').toggle();
+      if (!$('.dp-delta-toggle').prop('checked')) {
+        $('.dp-delta-input').val(-1);
+      } else {
+        $('.dp-delta-input').val(0.001);
       }
     });
     $('#analysis-panel').on('click', '#analysis-settings-hide-button', (e) => {
@@ -208,6 +220,7 @@ export class AnalysisHandler {
         if (this.analysisErrors.length === 0) {
           this.analysisInput.queries.trim();
           this.analysisInput.epsilon = Number.parseFloat($('.epsilon-input').val());
+          this.analysisInput.dpDelta = Number.parseFloat($('.dp-delta-input').val());
           this.analysisInput.beta = Number.parseFloat($('.beta-input').val());
           this.analysisInput.distanceG = 1.0; //Number.parseFloat($('.distanceG-input').val());
           this.analysisInput.attackerSettings = this.elementsHandler.attackerSettingsHandler.getAttackerSettings();
@@ -301,7 +314,10 @@ export class AnalysisHandler {
         line.shift();
 
         return line.reduce((value, item) => {
-          return value + `
+          let resultValue = value;
+
+          //the first four rows are visible immediately
+          resultValue += `
                 <div class="panel panel-default sub-panel">
                   <div class="panel-heading" style="text-align:center;">
                     <b>` + item[0] + `</b>
@@ -310,49 +326,42 @@ export class AnalysisHandler {
                     <table style="width:100%">
                       <tbody>
                         <tr>
-                         <td style="text-align: left;"><strong>beta-smooth sensitivity</strong></td>
-                         <td>` + item[1] + `</td>
-                        <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>actual outputs y</strong></td>
+                         <td style="text-align: left;"><strong>` + item[1] + `</strong></td>
                          <td>` + item[2] + `</td>
+                        </tr>
                         <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-noise magnitude </strong></td>
-                         <td>` + item[3] + `</td>
-                        <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-realtive error |a|/|y|</strong></td>
+                         <td style="text-align: left;"><strong>` + item[3] + `</strong></td>
                          <td>` + item[4] + `</td>
+                        </tr>
                         <tr>
+                         <td style="text-align: left;"><strong>` + item[5] + `</strong></td>
+                         <td>` + item[6] + `</td>
+                        </tr>
+                        <tr>
+                         <td style="text-align: left;"><strong>` + item[7] + `</strong></td>
+                         <td>` + item[8] + `</td>
+                        </tr>
                         <tr class="view-more-results-div">
                             <td colspan="2"  style="text-align:right;margin-top:10px;margin-bottom:10px"><span class="more-results-link">View more</span></td>
                         </tr>
                       </tbody>
-                      <tbody style="display:none" class="more-analysis-results">
+                      <tbody style="display:none" class="more-analysis-results">`;
+
+          //the remaining rows occur when "view more" is clicked
+          for (let j = 9; j < this.analysisResult.length; j += 2) {
+              resultValue += `
                         <tr>
-                         <td style="text-align: left;"><strong>smoothness beta (after optimization)</strong></td>
-                         <td>` + item[5] + `</td>
-                        <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>delta (Laplace only)</strong></td>
-                         <td>` + item[6] + `</td>
-                        <tr>
-                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-noise magnitude (Laplace)</strong></td>
-                         <td>` + item[7] + `</td>
-                        <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>` + Math.round(this.analysisInput.errorUB * 100) + `%-realtive error (Laplace)</strong></td>
-                         <td>` + item[8] + `</td>
-                        <tr>
-                        <tr>
-                         <td style="text-align: left;"><strong>norm N</strong></td>
-                         <td>` + item[9] + `</td>
-                        <tr>
+                         <td style="text-align: left;"><strong>` + item[j] + `</strong></td>
+                         <td>` + item[j+1] + `</td>
+                        </tr>`;
+          }
+
+          resultValue += `
                       </tbody>
                     </table>
                   </div>
                 </div>`;
+          return resultValue;
         }, '');
       };
 
