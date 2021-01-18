@@ -348,7 +348,7 @@ export class AnalysisHandler {
                       <tbody style="display:none" class="more-analysis-results">`;
 
           //the remaining rows occur when "view more" is clicked
-          for (let j = 9; j < this.analysisResult.length; j += 2) {
+          for (let j = 9; j < item.length; j += 2) {
               resultValue += `
                         <tr>
                          <td style="text-align: left;"><strong>` + item[j] + `</strong></td>
