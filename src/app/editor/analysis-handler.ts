@@ -102,19 +102,20 @@ export class AnalysisHandler {
     analysisSettingsPanel.detach();
     $('.analysis-panels-container').prepend(analysisSettingsPanel);
 
-    $('#analysis-panel').off('click', '#run-ds-analysis, #run-cs-analysis');
+    // $('#analysis-panel').off('click', '#run-ds-analysis, #run-cs-analysis');
+    $('#analysis-panel').off('click', '#run-cs-analysis');
     $('#sidebar').scrollTop(0);
     $('#analysis-panels').show();
-    $('#analysis-panel').on('click', '#run-ds-analysis, #run-cs-analysis', (e) => {
+    // $('#analysis-panel').on('click', '#run-ds-analysis, #run-cs-analysis', (e) => {
+    $('#analysis-panel').on('click', '#run-cs-analysis', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      if (e.target.id === 'run-ds-analysis') {
-        if (this.analysisType !== 'DS')
-          this.setChangesInModelStatus(true);
-        this.analysisType = 'DS';
-      }
-
+      // if (e.target.id === 'run-ds-analysis') {
+      //   if (this.analysisType !== 'DS')
+      //     this.setChangesInModelStatus(true);
+      //   this.analysisType = 'DS';
+      // }
 
       if (e.target.id === 'run-cs-analysis') {
         if (this.analysisType !== 'CS')
@@ -349,10 +350,10 @@ export class AnalysisHandler {
 
           //the remaining rows occur when "view more" is clicked
           for (let j = 9; j < item.length; j += 2) {
-              resultValue += `
+            resultValue += `
                         <tr>
                          <td style="text-align: left;"><strong>` + item[j] + `</strong></td>
-                         <td>` + item[j+1] + `</td>
+                         <td>` + item[j + 1] + `</td>
                         </tr>`;
           }
 

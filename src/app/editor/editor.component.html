@@ -75,7 +75,7 @@
 <div id="sidebar">
   <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'combined'"
     [class.active]="analyserMode === 'combined'" class="btn btn-default" (click)="setDSCSAnalyserActive()"
-    style="margin-right:5px">CS/DS Analysis</button>
+    style="margin-right:5px">Derivative sensitivity analysis</button>
 
   <button type="button" *ngIf="elementsHandler" [disabled]="analyserMode === 'global'"
     [class.active]="analyserMode === 'global'" class="btn btn-default" (click)="setGSAnalyserActive()">Global
@@ -105,7 +105,8 @@
               </div>
             </div>
             <div class="col-md-6">
-              <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1" min="0.0" max="10.0" />
+              <input class="form-control epsilon-input" type="number" id="epsilon-input" value="1.0" step="0.1"
+                min="0.0" max="10.0" />
             </div>
           </div>
           <hr>
@@ -119,8 +120,8 @@
             </div>
             <div class="col-md-6 text-left">
               <input class="dp-delta-toggle" type="checkbox" checked data-toggle="toggle">
-              <input class="form-control dp-delta-input" type="number" id="dp-delta-input" value="0.001" step="0.001" min="0.0" max="1.0"
-                style="margin-top:10px" />
+              <input class="form-control dp-delta-input" type="number" id="dp-delta-input" value="0.001" step="0.001"
+                min="0.0" max="1.0" style="margin-top:10px" />
             </div>
           </div>
           <hr>
@@ -134,8 +135,8 @@
             </div>
             <div class="col-md-6 text-left">
               <input class="beta-toggle" type="checkbox" checked data-toggle="toggle">
-              <input class="form-control beta-input" type="number" id="beta-input" value="0.10" step="0.01" min="0.0" max="2.0"
-                style="margin-top:10px" />
+              <input class="form-control beta-input" type="number" id="beta-input" value="0.10" step="0.01" min="0.0"
+                max="2.0" style="margin-top:10px" />
             </div>
           </div>
           <hr>
@@ -200,12 +201,12 @@
             <div class="col-md-12 text-left">
               <button id="attacker-settings-button" type="button" class="btn btn-default" style="margin-top:10px">Table
                 Constraints</button>
-              <br>
+              <!--<br>
               <button id="run-ds-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run derivative
-                sensitivity analysis</button>
+                sensitivity analysis</button>-->
               <br>
-              <button id="run-cs-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run combined
-                sensitivity analysis</button>
+              <button id="run-cs-analysis" type="button" class="btn btn-success" style="margin-top:10px">Run
+                analysis</button>
             </div>
           </div>
         </div>
