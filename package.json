@@ -24,7 +24,7 @@
     "bootstrap-toggle": "^2.2.2",
     "bpmn-js": "5.0.4",
     "classlist.js": "^1.1.20150312",
-    "codemirror": "^5.49.2",
+    "codemirror": "^5.58.2",
     "core-js": "^2.6.10",
     "exports-loader": "^0.7.0",
     "font-awesome": "^4.7.0",
